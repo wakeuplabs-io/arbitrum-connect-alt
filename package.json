@@ -36,7 +36,9 @@
   },
   "dependencies": {
     "@aws-sdk/client-ec2": "3.766.0",
+    "@types/lodash": "4.17.17",
     "dotenv": "16.4.7",
+    "lodash": "4.17.21",
     "sst": "3.9.37",
     "zod": "3.24.2"
   }

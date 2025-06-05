@@ -1,0 +1,69 @@
+import { ChainData } from "@/blockchain/chainsJsonType";
+import {
+  ChildToParentTransactionRequest,
+  EthBridger,
+  registerCustomArbitrumNetwork,
+} from "@arbitrum/sdk";
+import { BigNumber, ethers } from "ethers";
+
+function percentIncrease(value: BigNumber, percent: BigNumber): BigNumber {
+  return value.mul(percent.add(100)).div(100);
+}
+
+export async function createWithdrawalRequest(
+  childChain: ChainData,
+  amountInEther: string,
+  walletAddress: string,
+) {
+  registerCustomArbitrumNetwork(childChain, {
+    throwIfAlreadyRegistered: false,
+  });
+
+  const provider = new ethers.providers.JsonRpcProvider(childChain.rpcUrl);
+  const ethBridger = await EthBridger.fromProvider(provider);
+
+  const request = await ethBridger.getWithdrawalRequest({
+    amount: BigNumber.from(ethers.utils.parseEther(amountInEther)),
+    destinationAddress: walletAddress,
+    from: walletAddress,
+  });
+
+  return request;
+}
+
+export async function estimateGasLimitWithdrawalRequest(
+  childChain: ChainData,
+  request: ChildToParentTransactionRequest,
+) {
+  const provider = new ethers.providers.JsonRpcProvider(childChain.rpcUrl);
+
+  const estimatedGasLimit = await provider.estimateGas(request.txRequest);
+
+  return percentIncrease(estimatedGasLimit, BigNumber.from(30));
+}
+
+export async function withdraw(
+  childChain: ChainData,
+  request: ChildToParentTransactionRequest,
+  childChainSigner: ethers.Signer,
+  estimatedGasLimit: BigNumber,
+): Promise<string> {
+  registerCustomArbitrumNetwork(childChain, {
+    throwIfAlreadyRegistered: false,
+  });
+
+  const provider = new ethers.providers.JsonRpcProvider(childChain.rpcUrl);
+
+  const ethBridger = await EthBridger.fromProvider(provider);
+
+  const tx = await ethBridger.withdraw({
+    ...request,
+    childSigner: childChainSigner,
+    destinationAddress: request.txRequest.from,
+    overrides: {
+      gasLimit: estimatedGasLimit,
+    },
+  });
+
+  return tx.hash;
+}
