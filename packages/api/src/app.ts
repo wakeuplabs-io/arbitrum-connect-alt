@@ -10,9 +10,8 @@ import { cors } from "hono/cors";
 import env from "./env";
 import configureOpenAPI from "./lib/configure-open-api";
 import createApp from "./lib/create-app";
-import example from "./routes/example/example.index";
-import index from "./routes/index.route";
-import withdraw from "./routes/withdraw/withdraw.index";
+import activities from "./routes/activities/activities.index";
+
 /**
  * Main Hono application instance
  * Created using the createApp factory function that configures OpenAPIHono with custom bindings
@@ -36,38 +35,13 @@ app.use(
   }),
 );
 
-/**
- * Array of available API routes
- * Each route is an OpenAPIHono instance with its own definitions
- * @type {Array<import('./lib/types').AppOpenAPI>}
- */
-const routes = [index, example, withdraw];
+const apiRoutes = app.route("/api", activities);
 
 /**
  * Configures OpenAPI/Swagger documentation for the API
  * This enables the /doc and /reference endpoints for documentation
  */
 configureOpenAPI(app);
-
-/**
- * Registers all routes under the '/api' prefix
- * This ensures all endpoints are under the /api namespace
- */
-routes.forEach((route) => {
-  app.route("/api", route);
-});
-
-/**
- * Defines the API base routes with their respective endpoints
- * - / : Index route that returns basic API information
- * - /example : Example route that demonstrates basic endpoint structure
- * @type {import('./lib/types').AppOpenAPI}
- */
-const apiRoutes = app
-  .basePath("/api")
-  .route("/", index)
-  .route("/example", example)
-  .route("/withdraw", withdraw);
 
 /**
  * Exported type that represents the API route structure

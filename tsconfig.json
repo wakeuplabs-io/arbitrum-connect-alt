@@ -1,1 +1,11 @@
-{}
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "skipLibCheck": true,
+    "composite": true
+  },
+  "references": [{ "path": "./packages/api" }, { "path": "./packages/ui" }]
+}

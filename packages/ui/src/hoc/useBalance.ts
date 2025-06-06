@@ -5,7 +5,13 @@ import { BigNumber, ethers } from "ethers";
 
 const REFRESH_INTERVAL = 60000; // 1 minute
 
-export default function useBalance({ childChain }: { childChain: ChainData }) {
+interface UseBalanceReturn {
+  balance: BigNumber;
+  formattedBalance: string;
+  isLoading: boolean;
+}
+
+export default function useBalance({ childChain }: { childChain: ChainData }): UseBalanceReturn {
   const [{ wallet }] = useConnectWallet();
   const currentWallet = wallet?.accounts[0];
 
@@ -39,7 +45,6 @@ export default function useBalance({ childChain }: { childChain: ChainData }) {
   });
 
   return {
-    currentWallet,
     balance: balanceData.balance,
     formattedBalance: balanceData.formattedBalance,
     isLoading: isFetching,

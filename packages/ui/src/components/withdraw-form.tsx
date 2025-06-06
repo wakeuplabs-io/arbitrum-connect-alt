@@ -4,20 +4,27 @@ import { ChainData, ETH_NATIVE_TOKEN_DATA } from "@/blockchain/chainsJsonType";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import envParsed from "@/envParsed";
 import useBalance from "@/hoc/useBalance";
 import useLoaingDots from "@/hoc/useLoadingDots";
 import useWithdrawRequest from "@/hoc/useWithdrawRequest";
 import getDecimalCount from "@/lib/getDecimalCount";
+import getEthersProvider from "@/lib/getEthersProvider";
+import { withdraw } from "@/lib/withdraw";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useConnectWallet } from "@web3-onboard/react";
-import { useEffect } from "react";
+import { useEffect, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import ConnectWallet from "./connect-wallet";
 import WithdrawDetails from "./withdraw-detalis";
+import { hc } from "hono/client";
+import type { AppType } from "@arbitrum-connect/api";
 
 export default function WithdrawForm({ childChain }: { childChain: ChainData }) {
+  const [isPending, startTransition] = useTransition();
   const { formattedBalance, isLoading: isBalanceLoading } = useBalance({ childChain });
+  const client = hc<AppType>(envParsed().API_URL);
 
   const formattedBalanceWithLoadingDots = useLoaingDots(formattedBalance, isBalanceLoading);
 
@@ -53,6 +60,7 @@ export default function WithdrawForm({ childChain }: { childChain: ChainData }) 
   };
 
   const form = useForm<FormValues>({
+    // @ts-ignore
     resolver: zodResolver(formSchema),
     defaultValues: {
       amount: "",
@@ -62,18 +70,47 @@ export default function WithdrawForm({ childChain }: { childChain: ChainData }) 
   const amountWatched = form.watch("amount");
   const amountValid = formSchema.safeParse({ amount: amountWatched });
 
-  const { formattedEstimatedGas, isLoading: isWithdrawRequestLoading } = useWithdrawRequest(
-    childChain,
-    amountValid.success ? amountWatched : "",
-  );
-
-  const formattedEstimatedGasWithLoadingDots = useLoaingDots(
+  const {
+    withdrawRequest,
+    estimatedGas,
     formattedEstimatedGas,
-    isWithdrawRequestLoading,
-  );
+    isLoading: isWithdrawRequestLoading,
+  } = useWithdrawRequest(childChain, amountValid.success ? amountWatched : "");
 
-  function onSubmit(data: FormValues) {
-    console.log(data);
+  async function onSubmit(data: FormValues) {
+    if (!walletAddress || !withdrawRequest || !estimatedGas) return;
+
+    startTransition(() => {
+      (async () => {
+        try {
+          const provider = getEthersProvider(wallet);
+          if (!provider) throw new Error("No provider");
+
+          const signer = provider.getSigner();
+          const txHash = await withdraw(childChain, withdrawRequest, signer, estimatedGas);
+
+          // Create activity in the API using Hono client
+          const response = await client.api.activities.$post({
+            json: {
+              walletAddress,
+              withdrawAmount: data.amount,
+              childChainWithdrawTxHash: txHash,
+              childChainId: childChain.chainId,
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to create activity");
+          }
+
+          // Reset form after successful submission
+          form.reset({ amount: "" });
+        } catch (error) {
+          console.error("Error submitting withdrawal:", error);
+          // You might want to show an error message to the user here
+        }
+      })();
+    });
   }
 
   useEffect(() => {
@@ -148,14 +185,15 @@ export default function WithdrawForm({ childChain }: { childChain: ChainData }) 
         <div className="pt-4">
           <WithdrawDetails
             childChain={childChain}
-            formattedEstimatedGas={formattedEstimatedGasWithLoadingDots}
+            formattedEstimatedGas={formattedEstimatedGas}
+            isWithdrawRequestLoading={isWithdrawRequestLoading}
           />
         </div>
 
         <div className="pt-4">
           {walletAddress && (
-            <Button type="submit" className="w-full">
-              Continue
+            <Button type="submit" className="w-full" disabled={isPending}>
+              {isPending ? "Processing..." : "Continue"}
             </Button>
           )}
           {!walletAddress && <ConnectWallet className="w-full" />}

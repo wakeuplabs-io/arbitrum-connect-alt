@@ -1,19 +1,20 @@
 {
-  "name": "react-monorepo-template",
+  "name": "@arbitrum-connect",
   "version": "0.0.0",
-  "type": "module",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "dev": "concurrently --kill-others \"npm -w api run dev\" \"npm -w ui run dev\"",
+    "dev": "concurrently \"npm run dev --workspace=@arbitrum-connect/api\" \"npm run dev --workspace=@arbitrum-connect/ui\"",
+    "start": "npm run start --workspaces --if-present",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "deploy:app:staging": "sst install && sst deploy --stage=staging --print-logs",
     "deploy:app:production": "sst install && sst deploy --stage=production"
   },
-  "workspaces": [
-    "packages/*"
-  ],
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -38,6 +39,8 @@
     "@aws-sdk/client-ec2": "3.766.0",
     "@types/lodash": "4.17.17",
     "dotenv": "16.4.7",
+    "drizzle-orm": "0.28.5",
+    "hono": "4.7.11",
     "lodash": "4.17.21",
     "sst": "3.9.37",
     "zod": "3.24.2"

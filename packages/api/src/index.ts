@@ -1,23 +1,18 @@
-import { handle } from "hono/aws-lambda";
 import { serve } from "@hono/node-server";
-import env from "./env";
 import app from "./app";
+import env from "./env";
 
 const port = env.PORT;
 
-// For AWS Lambda
-export const handler = handle(app);
-
-// For local development
-if (process.env.NODE_ENV !== "production") {
-  serve({
+serve(
+  {
     fetch: app.fetch,
     port,
-  });
+  },
+  (info) => {
+    console.log(`Server listening on http://localhost:${info.port}`);
+  },
+);
 
-  console.log(`
-  🚀 Server running!
-  📝 API Documentation: http://localhost:${port}/reference
-  🔥 REST API: http://localhost:${port}/api
-    `);
-}
+export type { AppType } from "./app";
+export default app;

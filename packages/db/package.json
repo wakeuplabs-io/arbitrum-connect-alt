@@ -1,0 +1,28 @@
+{
+  "name": "@arbitrum-connect/db",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc && npm run generate && npm run migrate",
+    "dev": "tsc -w",
+    "generate": "drizzle-kit generate:pg",
+    "migrate": "tsx src/migrate.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@neondatabase/serverless": "0.6.0",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "0.28.5",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.0",
+    "drizzle-kit": "0.19.13",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}

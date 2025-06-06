@@ -7,7 +7,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 // https://vitejs.dev/config/
 export default defineConfig({
   base: "./",
-  plugins: [react(), tsconfigPaths(), TanStackRouterVite()],
+  plugins: [react(), tsconfigPaths(), TanStackRouterVite()] as any,
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

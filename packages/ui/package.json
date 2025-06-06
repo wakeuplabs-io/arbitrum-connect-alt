@@ -1,5 +1,5 @@
 {
-  "name": "ui",
+  "name": "@arbitrum-connect/ui",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,6 +10,7 @@
     "routes": "@tanstack/router-vite-plugin generate"
   },
   "dependencies": {
+    "@arbitrum-connect/api": "*",
     "@arbitrum/sdk": "4.0.4",
     "@hookform/resolvers": "3.3.4",
     "@radix-ui/react-dialog": "1.1.14",
