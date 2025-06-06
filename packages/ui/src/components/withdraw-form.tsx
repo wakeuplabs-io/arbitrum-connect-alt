@@ -4,27 +4,23 @@ import { ChainData, ETH_NATIVE_TOKEN_DATA } from "@/blockchain/chainsJsonType";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import envParsed from "@/envParsed";
 import useBalance from "@/hoc/useBalance";
 import useLoaingDots from "@/hoc/useLoadingDots";
 import useWithdrawRequest from "@/hoc/useWithdrawRequest";
 import getDecimalCount from "@/lib/getDecimalCount";
-import getEthersProvider from "@/lib/getEthersProvider";
-import { withdraw } from "@/lib/withdraw";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useConnectWallet } from "@web3-onboard/react";
-import { useEffect, useTransition } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import ConnectWallet from "./connect-wallet";
+import WithdrawConfirmation from "./withdraw-confirmation";
 import WithdrawDetails from "./withdraw-detalis";
-import { hc } from "hono/client";
-import type { AppType } from "@arbitrum-connect/api";
 
 export default function WithdrawForm({ childChain }: { childChain: ChainData }) {
-  const [isPending, startTransition] = useTransition();
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const { formattedBalance, isLoading: isBalanceLoading } = useBalance({ childChain });
-  const client = hc<AppType>(envParsed().API_URL);
 
   const formattedBalanceWithLoadingDots = useLoaingDots(formattedBalance, isBalanceLoading);
 
@@ -77,47 +73,39 @@ export default function WithdrawForm({ childChain }: { childChain: ChainData }) 
     isLoading: isWithdrawRequestLoading,
   } = useWithdrawRequest(childChain, amountValid.success ? amountWatched : "");
 
-  async function onSubmit(data: FormValues) {
+  function onSubmit() {
     if (!walletAddress || !withdrawRequest || !estimatedGas) return;
-
-    startTransition(() => {
-      (async () => {
-        try {
-          const provider = getEthersProvider(wallet);
-          if (!provider) throw new Error("No provider");
-
-          const signer = provider.getSigner();
-          const txHash = await withdraw(childChain, withdrawRequest, signer, estimatedGas);
-
-          // Create activity in the API using Hono client
-          const response = await client.api.activities.$post({
-            json: {
-              walletAddress,
-              withdrawAmount: data.amount,
-              childChainWithdrawTxHash: txHash,
-              childChainId: childChain.chainId,
-            },
-          });
-
-          if (!response.ok) {
-            throw new Error("Failed to create activity");
-          }
-
-          // Reset form after successful submission
-          form.reset({ amount: "" });
-        } catch (error) {
-          console.error("Error submitting withdrawal:", error);
-          // You might want to show an error message to the user here
-        }
-      })();
-    });
+    setShowConfirmation(true);
   }
 
-  useEffect(() => {
+  const handleSuccess = () => {
+    setShowConfirmation(false);
     form.reset({ amount: "" });
-  }, [childChain.chainId]);
+  };
 
   const nativeTokenData = childChain.bridgeUiConfig.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
+
+  if (
+    showConfirmation &&
+    withdrawRequest &&
+    estimatedGas &&
+    wallet &&
+    amountValid.success &&
+    amountWatched
+  ) {
+    return (
+      <WithdrawConfirmation
+        childChain={childChain}
+        amount={amountWatched}
+        withdrawRequest={withdrawRequest}
+        estimatedGas={estimatedGas}
+        formattedEstimatedGas={formattedEstimatedGas}
+        wallet={wallet}
+        onBack={() => setShowConfirmation(false)}
+        onSuccess={handleSuccess}
+      />
+    );
+  }
 
   return (
     <Form {...form}>
@@ -192,8 +180,12 @@ export default function WithdrawForm({ childChain }: { childChain: ChainData }) 
 
         <div className="pt-4">
           {walletAddress && (
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Processing..." : "Continue"}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={!amountValid.success || isWithdrawRequestLoading || isBalanceLoading}
+            >
+              {isWithdrawRequestLoading || isBalanceLoading ? "Loading..." : "Continue"}
             </Button>
           )}
           {!walletAddress && <ConnectWallet className="w-full" />}

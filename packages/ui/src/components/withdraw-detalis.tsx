@@ -2,7 +2,7 @@ import { ChainData, ETH_NATIVE_TOKEN_DATA } from "@/blockchain/chainsJsonType";
 import useLoaingDots from "@/hoc/useLoadingDots";
 import shortenAddress from "@/lib/shortenAddress";
 import { useConnectWallet } from "@web3-onboard/react";
-import { FileText, Wallet } from "lucide-react";
+import { Fuel, Wallet } from "lucide-react";
 
 export default function WithdrawDetails({
   childChain,
@@ -40,7 +40,7 @@ export default function WithdrawDetails({
       {/* Network Fees Row */}
       <div className="flex items-center gap-8">
         <div className="flex items-center gap-4 flex-1">
-          <FileText className="size-6 text-primary" />
+          <Fuel className="size-6 text-primary" />
           <span className="font-extralight text-primary">Network fees</span>
         </div>
         <div className="flex items-center gap-6">

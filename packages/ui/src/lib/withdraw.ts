@@ -15,9 +15,12 @@ export async function createWithdrawalRequest(
   amountInEther: string,
   walletAddress: string,
 ) {
-  registerCustomArbitrumNetwork(childChain, {
-    throwIfAlreadyRegistered: false,
-  });
+  registerCustomArbitrumNetwork(
+    { ...childChain, isCustom: true },
+    {
+      throwIfAlreadyRegistered: false,
+    },
+  );
 
   const provider = new ethers.providers.JsonRpcProvider(childChain.rpcUrl);
   const ethBridger = await EthBridger.fromProvider(provider);
