@@ -1,8 +1,13 @@
 {
   "name": "@arbitrum-connect/db",
   "version": "1.0.0",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./config": "./dist/config.js"
+  },
   "scripts": {
     "build": "tsc && npm run generate && npm run migrate",
     "dev": "tsc -w",

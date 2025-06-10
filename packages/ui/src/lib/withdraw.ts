@@ -51,9 +51,12 @@ export async function withdraw(
   childChainSigner: ethers.Signer,
   estimatedGasLimit: BigNumber,
 ): Promise<string> {
-  registerCustomArbitrumNetwork(childChain, {
-    throwIfAlreadyRegistered: false,
-  });
+  registerCustomArbitrumNetwork(
+    { ...childChain, isCustom: true },
+    {
+      throwIfAlreadyRegistered: false,
+    },
+  );
 
   const provider = new ethers.providers.JsonRpcProvider(childChain.rpcUrl);
 

@@ -4,8 +4,6 @@ import { ChainData, ETH_NATIVE_TOKEN_DATA } from "@/blockchain/chainsJsonType";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import useBalance from "@/hoc/useBalance";
-import useLoaingDots from "@/hoc/useLoadingDots";
 import useWithdrawRequest from "@/hoc/useWithdrawRequest";
 import getDecimalCount from "@/lib/getDecimalCount";
 
@@ -15,15 +13,26 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import ConnectWallet from "./connect-wallet";
-import WithdrawConfirmation from "./withdraw-confirmation";
 import WithdrawDetails from "./withdraw-detalis";
 
-export default function WithdrawForm({ childChain }: { childChain: ChainData }) {
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const { formattedBalance, isLoading: isBalanceLoading } = useBalance({ childChain });
+const parseNumber = (val: string) => {
+  if (val === "") return 0;
+  const filtered = val.replace(/[^0-9.]/g, "");
+  return Number(filtered);
+};
 
-  const formattedBalanceWithLoadingDots = useLoaingDots(formattedBalance, isBalanceLoading);
-
+export default function WithdrawForm({
+  childChain,
+  formattedBalance,
+  isBalanceLoading,
+  onWithdrawRequest,
+}: {
+  childChain: ChainData;
+  formattedBalance: string;
+  isBalanceLoading: boolean;
+  onWithdrawRequest: (amount: string) => void;
+}) {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [{ wallet }] = useConnectWallet();
   const walletAddress = wallet?.accounts[0]?.address;
 
@@ -31,13 +40,12 @@ export default function WithdrawForm({ childChain }: { childChain: ChainData }) 
     amount: z
       .string()
       .regex(/^\d*\.?\d*$/, { message: "Only numbers and decimal point allowed" })
-      .transform((val) => (val === "" ? 0 : Number(val)))
-      .refine((val) => !isNaN(val), { message: "Invalid amount" })
-      .refine((val) => val > 0, { message: "Amount must be greater than 0" })
-      .refine((val) => val <= 1000000, { message: "Amount too large" })
+      .refine((val) => !isNaN(parseNumber(val)), { message: "Invalid amount" })
+      .refine((val) => parseNumber(val) > 0, { message: "Amount must be greater than 0" })
+      .refine((val) => parseNumber(val) <= 1000000, { message: "Amount too large" })
       .refine(
         (val) => {
-          const decimalPlaces = getDecimalCount(val);
+          const decimalPlaces = getDecimalCount(parseNumber(val));
           return decimalPlaces <= 5;
         },
         { message: "Maximum 5 decimal places allowed" },
@@ -45,15 +53,13 @@ export default function WithdrawForm({ childChain }: { childChain: ChainData }) 
       .refine(
         (val) => {
           if (isBalanceLoading) return false;
-          return val <= Number(formattedBalance);
+          return parseNumber(val) <= Number(formattedBalance);
         },
         { message: "Amount exceeds available balance" },
       ),
   });
 
-  type FormValues = {
-    amount: string;
-  };
+  type FormValues = z.infer<typeof formSchema>;
 
   const form = useForm<FormValues>({
     // @ts-ignore
@@ -73,39 +79,20 @@ export default function WithdrawForm({ childChain }: { childChain: ChainData }) 
     isLoading: isWithdrawRequestLoading,
   } = useWithdrawRequest(childChain, amountValid.success ? amountWatched : "");
 
-  function onSubmit() {
-    if (!walletAddress || !withdrawRequest || !estimatedGas) return;
-    setShowConfirmation(true);
-  }
+  function onSubmit(data: FormValues) {
+    if (!walletAddress || !withdrawRequest) return;
 
-  const handleSuccess = () => {
-    setShowConfirmation(false);
-    form.reset({ amount: "" });
-  };
+    setErrorMessage(null);
+
+    if (!estimatedGas) {
+      setErrorMessage("Failed to estimate gas, please try again later.");
+      return;
+    }
+
+    onWithdrawRequest(data.amount);
+  }
 
   const nativeTokenData = childChain.bridgeUiConfig.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
-
-  if (
-    showConfirmation &&
-    withdrawRequest &&
-    estimatedGas &&
-    wallet &&
-    amountValid.success &&
-    amountWatched
-  ) {
-    return (
-      <WithdrawConfirmation
-        childChain={childChain}
-        amount={amountWatched}
-        withdrawRequest={withdrawRequest}
-        estimatedGas={estimatedGas}
-        formattedEstimatedGas={formattedEstimatedGas}
-        wallet={wallet}
-        onBack={() => setShowConfirmation(false)}
-        onSuccess={handleSuccess}
-      />
-    );
-  }
 
   return (
     <Form {...form}>
@@ -131,9 +118,16 @@ export default function WithdrawForm({ childChain }: { childChain: ChainData }) 
                   </FormControl>
                   <div className="min-h-4">
                     <FormMessage className="text-center whitespace-nowrap text-xs">
-                      <span className="text-xs font-extralight text-muted-foreground">
-                        Amount to withdraw
-                      </span>
+                      {!errorMessage && (
+                        <span className="text-xs font-extralight text-muted-foreground">
+                          Amount to withdraw
+                        </span>
+                      )}
+                      {errorMessage && (
+                        <span className="text-xs font-extralight text-destructive">
+                          {errorMessage}
+                        </span>
+                      )}
                     </FormMessage>
                   </div>
                 </FormItem>
@@ -152,9 +146,7 @@ export default function WithdrawForm({ childChain }: { childChain: ChainData }) 
               <img src={nativeTokenData.logoUrl} alt={nativeTokenData.name} className="size-6" />
               <div className="flex flex-col">
                 <span className="font-medium">{nativeTokenData.symbol}</span>
-                <span className="text-sm text-muted-foreground">
-                  Balance {formattedBalanceWithLoadingDots}
-                </span>
+                <span className="text-sm text-muted-foreground">Balance {formattedBalance}</span>
               </div>
             </div>
             <Button
@@ -183,7 +175,7 @@ export default function WithdrawForm({ childChain }: { childChain: ChainData }) 
             <Button
               type="submit"
               className="w-full"
-              disabled={!amountValid.success || isWithdrawRequestLoading || isBalanceLoading}
+              disabled={isWithdrawRequestLoading || isBalanceLoading}
             >
               {isWithdrawRequestLoading || isBalanceLoading ? "Loading..." : "Continue"}
             </Button>

@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
 import { Route as ActivityIndexImport } from './routes/activity/index'
+import { Route as ActivityActivityIdImport } from './routes/activity/$activityId'
 
 // Create/Update Routes
 
@@ -28,6 +29,12 @@ const ActivityIndexRoute = ActivityIndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const ActivityActivityIdRoute = ActivityActivityIdImport.update({
+  id: '/activity/$activityId',
+  path: '/activity/$activityId',
+  getParentRoute: () => rootRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -37,6 +44,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/activity/$activityId': {
+      id: '/activity/$activityId'
+      path: '/activity/$activityId'
+      fullPath: '/activity/$activityId'
+      preLoaderRoute: typeof ActivityActivityIdImport
       parentRoute: typeof rootRoute
     }
     '/activity/': {
@@ -53,36 +67,41 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/activity/$activityId': typeof ActivityActivityIdRoute
   '/activity': typeof ActivityIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/activity/$activityId': typeof ActivityActivityIdRoute
   '/activity': typeof ActivityIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/activity/$activityId': typeof ActivityActivityIdRoute
   '/activity/': typeof ActivityIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/activity'
+  fullPaths: '/' | '/activity/$activityId' | '/activity'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/activity'
-  id: '__root__' | '/' | '/activity/'
+  to: '/' | '/activity/$activityId' | '/activity'
+  id: '__root__' | '/' | '/activity/$activityId' | '/activity/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ActivityActivityIdRoute: typeof ActivityActivityIdRoute
   ActivityIndexRoute: typeof ActivityIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ActivityActivityIdRoute: ActivityActivityIdRoute,
   ActivityIndexRoute: ActivityIndexRoute,
 }
 
@@ -97,11 +116,15 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/activity/$activityId",
         "/activity/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/activity/$activityId": {
+      "filePath": "activity/$activityId.tsx"
     },
     "/activity/": {
       "filePath": "activity/index.tsx"

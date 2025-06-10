@@ -1,0 +1,62 @@
+import { ScrollText } from "lucide-react";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
+import { Link } from "@tanstack/react-router";
+import { Skeleton } from "./ui/skeleton";
+
+export const ActivitySkeleton = () => {
+  return (
+    <div className="flex items-center justify-center p-6 w-full">
+      <Card className="w-full border-none text-center shadow-none bg-transparent">
+        <CardHeader className="items-center w-full">
+          <ScrollText className="h-12 w-12 text-blue-500" />
+          <CardTitle className="pt-4 text-3xl font-bold">
+            <Skeleton className="h-8 w-[300px] mx-auto" />
+          </CardTitle>
+          <CardDescription className="pt-2 text-base text-slate-600 max-w-md">
+            Your withdrawal request for{" "}
+            <span className="font-bold text-slate-800">
+              <Skeleton className="h-4 w-[80px] inline-block" />
+            </span>{" "}
+            from{" "}
+            <span className="font-bold text-slate-800">
+              <Skeleton className="h-4 w-[120px] inline-block" />
+            </span>{" "}
+            to{" "}
+            <span className="font-bold text-slate-800">
+              <Skeleton className="h-4 w-[100px] inline-block" />
+            </span>{" "}
+            has been <Skeleton className="h-4 w-[80px] inline-block" />
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="mt-6 flex flex-col gap-2 w-full">
+          <div className="rounded-lg border bg-gray-100/50">
+            <div className="flex items-center justify-center p-4 border-b">
+              <Skeleton className="h-5 w-full" />
+            </div>
+            <div className="bg-gray-100 text-center text-sm text-slate-600 px-4 py-2">
+              Have questions about this process?{" "}
+              <a
+                href="https://github.com/wakeuplabs-io/arbitrum-connect/blob/main/README.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-blue-600 hover:underline"
+              >
+                Learn More
+              </a>
+            </div>
+          </div>
+        </CardContent>
+        <CardFooter className="mt-6 flex flex-col gap-3">
+          <Button size="lg" asChild className="w-full bg-slate-900 text-white hover:bg-slate-800">
+            <Link to="/activity">Go to my activity</Link>
+          </Button>
+
+          <Button size="lg" variant="outline" asChild className="w-full">
+            <Link to="/">Return home</Link>
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+};

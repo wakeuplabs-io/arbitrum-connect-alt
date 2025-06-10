@@ -1,5 +1,5 @@
 import { ETH_NATIVE_TOKEN_DATA } from "@/blockchain/chainsJsonType";
-import { allChains } from "@/lib/chains";
+import { allChains } from "@/blockchain/chains";
 import Icons from "@/shared/icons";
 import type { AppMetadata, Chain } from "@web3-onboard/common";
 import injectedModule from "@web3-onboard/injected-wallets";

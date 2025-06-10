@@ -1,4 +1,3 @@
-import type { InferModel } from "drizzle-orm";
 import { integer, pgTable, serial, text } from "drizzle-orm/pg-core";
 
 export enum ActivityStatus {
@@ -10,6 +9,7 @@ export enum ActivityStatus {
   FORCED = "forced",
   FORCED_CHALLENGE_PERIOD_COMPLETED = "forced_challenge_period_completed",
   CLAIMED = "claimed",
+  EXECUTED_BUT_FAILED = "executed_but_failed",
 }
 
 const activityStatusValues = [
@@ -21,6 +21,7 @@ const activityStatusValues = [
   ActivityStatus.FORCED,
   ActivityStatus.FORCED_CHALLENGE_PERIOD_COMPLETED,
   ActivityStatus.CLAIMED,
+  ActivityStatus.EXECUTED_BUT_FAILED,
 ] as const;
 
 export const activities = pgTable("activities", {
@@ -35,4 +36,4 @@ export const activities = pgTable("activities", {
   createdAt: integer("created_at").notNull(),
 });
 
-export type Activity = InferModel<typeof activities>;
+export type Activity = typeof activities.$inferSelect;

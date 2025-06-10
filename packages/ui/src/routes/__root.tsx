@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import { Bell } from "lucide-react";
 import React from "react";
+import { Toaster } from "@/components/ui/sonner";
 
 const TanStackRouterDevtools = import.meta.env.PROD
   ? () => null // Render nothing in production
@@ -39,6 +40,7 @@ export const Route = createRootRoute({
         <Outlet />
       </main>
       <TanStackRouterDevtools />
+      <Toaster position="top-right" richColors />
     </div>
   ),
 });

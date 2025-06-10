@@ -12,3 +12,14 @@ export interface AppBindings {
 export type AppOpenAPI<S extends Schema = {}> = OpenAPIHono<AppBindings, S>;
 
 export type AppRouteHandler<R extends RouteConfig> = RouteHandler<R, AppBindings>;
+
+export enum TxStatus {
+  SUCCESS = 1,
+  FAILURE = 0,
+}
+
+// Time constants
+export const SECONDS_IN_MINUTE = 60;
+export const SECONDS_IN_HOUR = 3600;
+export const SECONDS_IN_DAY = 86400;
+export const CONFIRMATION_BUFFER_MINUTES = 60;

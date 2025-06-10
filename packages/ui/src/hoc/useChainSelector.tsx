@@ -1,4 +1,4 @@
-import { allChains, featuredChains, orbitsChains } from "@/lib/chains";
+import { allChains, featuredChains, orbitsChains } from "@/blockchain/chains";
 import debounce from "lodash/debounce";
 import { useCallback, useMemo, useState } from "react";
 

@@ -45,6 +45,10 @@ export default function useWithdrawRequest(childChain: ChainData, amount: string
 
   const error = withdrawRequestError || estimateGasError;
 
+  if (error) {
+    console.error("error", error);
+  }
+
   return {
     withdrawRequest,
     estimatedGas,

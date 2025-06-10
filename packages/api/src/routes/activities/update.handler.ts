@@ -1,4 +1,6 @@
-import { activities, db } from "@arbitrum-connect/db";
+import { activities } from "@arbitrum-connect/db";
+import { db } from "@arbitrum-connect/db/config";
+
 import { z } from "@hono/zod-openapi";
 import { eq } from "drizzle-orm";
 import * as HttpStatusCodes from "stoker/http-status-codes";

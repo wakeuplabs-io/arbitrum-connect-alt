@@ -1,4 +1,6 @@
-import { activities, ActivityStatus, db } from "@arbitrum-connect/db";
+import { activities, ActivityStatus } from "@arbitrum-connect/db";
+import { db } from "@arbitrum-connect/db/config";
+
 import { z } from "@hono/zod-openapi";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { AppRouteHandler } from "../../lib/types";

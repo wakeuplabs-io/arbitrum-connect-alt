@@ -1,6 +1,6 @@
-import { ChainsJsonType } from "@/blockchain/chainsJsonType";
-import featuredChainsJson from "@/blockchain/featuredChains.json";
-import orbitsChainsJson from "@/blockchain/orbitChains.json";
+import { ChainsJsonType } from "./chainsJsonType";
+import featuredChainsJson from "./featuredChains.json";
+import orbitsChainsJson from "./orbitChains.json";
 
 export const featuredChains: ChainsJsonType = featuredChainsJson as unknown as ChainsJsonType;
 export const orbitsChains: ChainsJsonType = orbitsChainsJson as unknown as ChainsJsonType;
