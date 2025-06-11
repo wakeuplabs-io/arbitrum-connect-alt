@@ -10,6 +10,7 @@ import {
   CornerUpLeft,
   CornerUpRight,
   ClockAlert,
+  Calendar,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
@@ -21,6 +22,7 @@ import { ETH_NATIVE_TOKEN_DATA } from "@/blockchain/chainsJsonType";
 import { formatDate } from "date-fns";
 import { cn } from "@/lib/utils";
 import { GetActivityResponse } from "@arbitrum-connect/api/src/routes/activities/get.routes";
+import ClaimButton from "./claim-button";
 
 const statusToTitle = {
   [ActivityStatus.INITIALIZED]: "Withdrawal Initiated",
@@ -131,6 +133,14 @@ export const ActivityReceipt = ({ activity }: { activity: GetActivityResponse })
                   </abbr>
                 </span>
               )}
+              {activity.status !== ActivityStatus.INITIALIZED && (
+                <span className="flex items-center text-slate-500">
+                  <Calendar className="mr-2 h-5 w-5" />
+                  <abbr title={`Withdrawal initiated at`}>
+                    {formatDate(new Date(activity.createdAt * 1000), "MMM d, yyyy h:mm a")}
+                  </abbr>
+                </span>
+              )}
             </div>
             <div className="flex flex-wrap items-center justify-between text-sm p-4 border-b">
               <div className="flex items-center font-medium text-slate-800">
@@ -187,15 +197,7 @@ export const ActivityReceipt = ({ activity }: { activity: GetActivityResponse })
         <CardFooter className="flex flex-col gap-6 p-0">
           <section className="w-full flex flex-col gap-3">
             {activity.status === ActivityStatus.READY_TO_CLAIM && (
-              <Button
-                size="lg"
-                className="bg-blue-500 text-white hover:bg-blue-400"
-                onClick={() => {
-                  console.log("claim");
-                }}
-              >
-                Claim
-              </Button>
+              <ClaimButton activity={activity} />
             )}
             {timeExpired && (
               <Button

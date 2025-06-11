@@ -5,6 +5,7 @@ import type { AppMetadata, Chain } from "@web3-onboard/common";
 import injectedModule from "@web3-onboard/injected-wallets";
 import { Web3OnboardProvider, init } from "@web3-onboard/react";
 import { PropsWithChildren } from "react";
+import toHex from "@/blockchain/toHex";
 
 const chainList = [...allChains.mainnet, ...allChains.testnet];
 
@@ -20,7 +21,7 @@ const chains: Chain[] = chainList.map((chain) => {
   const nativeTokenData = chain.bridgeUiConfig.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
 
   return {
-    id: `0x${chain.chainId.toString(16)}`,
+    id: toHex(chain.chainId),
     token: nativeTokenData.symbol,
     label: chain.name,
     rpcUrl: chain.rpcUrl,

@@ -18,6 +18,7 @@ export enum WithdrawalStatus {
   CLAIMED = "claimed",
   EXECUTED_BUT_FAILED = "executedButFailed",
   CLAIM_IN_PROGRESS = "claimInProgress",
+  NOT_FOUND = "notFound",
 }
 
 export interface WithdrawalStatusResult {
@@ -32,6 +33,13 @@ export async function getWithdrawalStatus(
   childChainWithdrawTxHash: string,
 ): Promise<WithdrawalStatusResult> {
   try {
+    registerCustomArbitrumNetwork(
+      { ...childChain, isCustom: true },
+      {
+        throwIfAlreadyRegistered: false,
+      },
+    );
+
     const parentChain = chainList.find((c) => c.chainId === childChain.parentChainId);
 
     if (!parentChain) {
@@ -44,7 +52,9 @@ export async function getWithdrawalStatus(
     // Get transaction receipt
     const txReceipt = await childChainProvider.getTransactionReceipt(childChainWithdrawTxHash);
     if (!txReceipt) {
-      throw new Error("Transaction receipt not found");
+      return {
+        status: WithdrawalStatus.NOT_FOUND,
+      };
     }
 
     if (txReceipt.status === TxStatus.FAILURE) {
@@ -71,14 +81,6 @@ export async function getWithdrawalStatus(
         status: WithdrawalStatus.CLAIMED,
       };
     }
-
-    registerCustomArbitrumNetwork(
-      { ...childChain, isCustom: true },
-      {
-        throwIfAlreadyRegistered: false,
-      },
-    );
-
     // Get L2 network to access its parameters
     const childNetwork = getArbitrumNetwork(
       await childChainProvider.getNetwork().then((n) => n.chainId),

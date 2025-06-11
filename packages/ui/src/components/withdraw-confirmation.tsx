@@ -15,7 +15,7 @@ import { ChevronLeft } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import useTransitions from "@/hoc/useTransitions";
-import { utils } from "ethers";
+import toHex from "@/blockchain/toHex";
 
 interface WithdrawConfirmationProps {
   childChain: ChainData;
@@ -57,17 +57,6 @@ export default function WithdrawConfirmation({
     formattedEstimatedGas,
     isLoading: isWithdrawRequestLoading,
   } = useWithdrawRequest(childChain, amount);
-
-  console.log(
-    JSON.stringify(
-      {
-        withdrawRequest,
-        estimatedGas,
-      },
-      null,
-      2,
-    ),
-  );
 
   const handleConfirm = async () => {
     if (!walletAddress || !withdrawRequest || !estimatedGas || !wallet) return;
@@ -161,9 +150,9 @@ export default function WithdrawConfirmation({
       </div>
 
       <div className="pt-4 flex flex-col gap-4">
-        {connectedChain?.id !== utils.hexlify(childChain.chainId) && (
+        {connectedChain?.id !== toHex(childChain.chainId) && (
           <Button
-            onClick={() => setChain({ chainId: utils.hexlify(childChain.chainId) })}
+            onClick={() => setChain({ chainId: toHex(childChain.chainId) })}
             className="w-full"
             disabled={settingChain}
           >
@@ -172,7 +161,7 @@ export default function WithdrawConfirmation({
           </Button>
         )}
 
-        {connectedChain?.id === utils.hexlify(childChain.chainId) && (
+        {connectedChain?.id === toHex(childChain.chainId) && (
           <Button
             onClick={handleConfirm}
             className="w-full"

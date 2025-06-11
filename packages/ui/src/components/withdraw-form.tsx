@@ -37,26 +37,15 @@ export default function WithdrawForm({
   const walletAddress = wallet?.accounts[0]?.address;
 
   const formSchema = z.object({
-    amount: z
-      .string()
-      .regex(/^\d*\.?\d*$/, { message: "Only numbers and decimal point allowed" })
-      .refine((val) => !isNaN(parseNumber(val)), { message: "Invalid amount" })
-      .refine((val) => parseNumber(val) > 0, { message: "Amount must be greater than 0" })
-      .refine((val) => parseNumber(val) <= 1000000, { message: "Amount too large" })
-      .refine(
-        (val) => {
-          const decimalPlaces = getDecimalCount(parseNumber(val));
-          return decimalPlaces <= 5;
-        },
-        { message: "Maximum 5 decimal places allowed" },
-      )
-      .refine(
-        (val) => {
-          if (isBalanceLoading) return false;
-          return parseNumber(val) <= Number(formattedBalance);
-        },
-        { message: "Amount exceeds available balance" },
-      ),
+    amount: z.coerce
+      .number()
+      .refine((val) => val > 0, { message: "Amount must be greater than 0" })
+      .refine((val) => val <= 1000000, { message: "Amount too large" })
+      .refine((val) => getDecimalCount(val) <= 5, { message: "Maximum 5 decimal places allowed" })
+      .refine((val) => val <= Number(formattedBalance), {
+        message: "Amount exceeds available balance",
+      })
+      .transform((val) => val.toString()),
   });
 
   type FormValues = z.infer<typeof formSchema>;
@@ -81,6 +70,10 @@ export default function WithdrawForm({
 
   function onSubmit(data: FormValues) {
     if (!walletAddress || !withdrawRequest) return;
+
+    console.log("onSubmit", data);
+
+    return;
 
     setErrorMessage(null);
 

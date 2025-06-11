@@ -11,12 +11,12 @@ interface UseBalanceReturn {
   isLoading: boolean;
 }
 
-export default function useBalance({ childChain }: { childChain: ChainData }): UseBalanceReturn {
+export default function useBalance(chain: ChainData | null | undefined): UseBalanceReturn {
   const [{ wallet }] = useConnectWallet();
   const currentWallet = wallet?.accounts[0];
 
   const { data: balanceData, isFetching } = useQuery({
-    queryKey: ["balance", currentWallet?.address, childChain.rpcUrl],
+    queryKey: ["balance", currentWallet?.address, chain?.rpcUrl],
     queryFn: async () => {
       if (!currentWallet) {
         return {
@@ -25,7 +25,7 @@ export default function useBalance({ childChain }: { childChain: ChainData }): U
         };
       }
 
-      const provider = new ethers.providers.JsonRpcProvider(childChain.rpcUrl);
+      const provider = new ethers.providers.JsonRpcProvider(chain?.rpcUrl);
       const balance = await provider.getBalance(currentWallet.address);
       const formatted = ethers.utils.formatEther(balance);
       const [whole, decimal] = formatted.split(".");
@@ -37,12 +37,20 @@ export default function useBalance({ childChain }: { childChain: ChainData }): U
       };
     },
     refetchInterval: REFRESH_INTERVAL,
-    enabled: !!currentWallet,
+    enabled: !!currentWallet && !!chain,
     initialData: {
       balance: BigNumber.from(0),
       formattedBalance: "0",
     },
   });
+
+  if (!chain || !currentWallet) {
+    return {
+      balance: BigNumber.from(0),
+      formattedBalance: "0",
+      isLoading: false,
+    };
+  }
 
   return {
     balance: balanceData.balance,

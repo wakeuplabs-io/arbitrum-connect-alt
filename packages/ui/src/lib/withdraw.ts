@@ -5,6 +5,7 @@ import {
   registerCustomArbitrumNetwork,
 } from "@arbitrum/sdk";
 import { BigNumber, ethers } from "ethers";
+import toHex from "@/blockchain/toHex";
 
 function percentIncrease(value: BigNumber, percent: BigNumber): BigNumber {
   return value.mul(percent.add(100)).div(100);
@@ -51,24 +52,15 @@ export async function withdraw(
   childChainSigner: ethers.Signer,
   estimatedGasLimit: BigNumber,
 ): Promise<string> {
-  registerCustomArbitrumNetwork(
-    { ...childChain, isCustom: true },
-    {
-      throwIfAlreadyRegistered: false,
-    },
-  );
+  const signerChainId = await childChainSigner.getChainId();
 
-  const provider = new ethers.providers.JsonRpcProvider(childChain.rpcUrl);
+  if (toHex(childChain.chainId) !== toHex(signerChainId)) {
+    throw new Error("Chain ID mismatch");
+  }
 
-  const ethBridger = await EthBridger.fromProvider(provider);
-
-  const tx = await ethBridger.withdraw({
-    ...request,
-    childSigner: childChainSigner,
-    destinationAddress: request.txRequest.from,
-    overrides: {
-      gasLimit: estimatedGasLimit,
-    },
+  const tx = await childChainSigner.sendTransaction({
+    ...request.txRequest,
+    gasLimit: estimatedGasLimit,
   });
 
   return tx.hash;

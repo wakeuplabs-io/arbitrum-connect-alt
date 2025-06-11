@@ -19,9 +19,9 @@ function Index() {
   const chainSelectorProps = useChainSelector();
 
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const { formattedBalance, isLoading: isBalanceLoading } = useBalance({
-    childChain: chainSelectorProps.childChain,
-  });
+  const { formattedBalance, isLoading: isBalanceLoading } = useBalance(
+    chainSelectorProps.childChain,
+  );
 
   const formattedBalanceWithLoadingDots = useLoaingDots(formattedBalance, isBalanceLoading);
 
