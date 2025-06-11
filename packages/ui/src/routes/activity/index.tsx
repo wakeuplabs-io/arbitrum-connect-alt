@@ -1,13 +1,212 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { hc } from "hono/client";
+import { AppType } from "@arbitrum-connect/api";
+import envParsed from "@/envParsed";
+import { allChains } from "@/blockchain/chains";
+import { formatDate } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Link } from "@tanstack/react-router";
+import { ActivityStatus } from "@arbitrum-connect/db";
+import {
+  Eye,
+  ChevronLeft,
+  ChevronRight,
+  CircleX,
+  CircleCheck,
+  CircleAlert,
+  ClockFading,
+} from "lucide-react";
+import { useState } from "react";
+import { useConnectWallet } from "@web3-onboard/react";
+import { ETH_NATIVE_TOKEN_DATA } from "@/blockchain/chainsJsonType";
+import { cn } from "@/lib/utils";
+import { ActivityListSkeleton } from "@/components/activity-list-skeleton";
+import { ActivityError } from "@/components/activity-error";
+import { ActivityEmpty } from "@/components/activity-empty";
+import { ListActivityResponse } from "@arbitrum-connect/api/src/routes/activities/list.routes";
+
+const REFRESH_INTERVAL = 60000; // 1 minute
+const PAGE_SIZE = 10;
+
+const chainsList = [...allChains.mainnet, ...allChains.testnet];
+
+const statusToTitle = {
+  [ActivityStatus.INITIALIZED]: "Withdrawal Initiated",
+  [ActivityStatus.READY_TO_CLAIM]: "Ready to be Claimed",
+  [ActivityStatus.CLAIMED]: "Withdrawal Claimed",
+  [ActivityStatus.EXECUTED_BUT_FAILED]: "Withdrawal Executed But Failed",
+};
+
+async function fetchActivities(walletAddress: string, page: number = 1, limit: number = 10) {
+  const client = hc<AppType>(envParsed().API_URL, {
+    headers: { "Cache-Control": "no-cache" },
+  });
+  const response = await client.api.activities.$get({
+    query: {
+      walletAddress,
+      page: page.toString(),
+      limit: limit.toString(),
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch activities");
+  }
+
+  return (await response.json()) as ListActivityResponse;
+}
 
 export const Route = createFileRoute("/activity/")({
   component: Activity,
 });
 
 function Activity() {
+  const [{ wallet }] = useConnectWallet();
+  const currentWallet = wallet?.accounts[0].address;
+  const [page, setPage] = useState(1);
+
+  const { status, data, error } = useQuery({
+    queryKey: ["activities", currentWallet, page, PAGE_SIZE],
+    queryFn: () => fetchActivities(currentWallet!, page, PAGE_SIZE),
+    enabled: !!currentWallet,
+    refetchInterval: REFRESH_INTERVAL,
+  });
+
+  if (currentWallet && status === "pending") {
+    return (
+      <div className="w-full flex justify-center">
+        <div className="flex flex-col max-w-3xl w-full gap-4 p-4">
+          <ActivityListSkeleton />
+        </div>
+      </div>
+    );
+  }
+
+  if (currentWallet && status === "error") {
+    return (
+      <div className="w-full flex justify-center">
+        <div className="flex flex-col max-w-3xl w-full gap-4 p-4">
+          <ActivityError error={error} />
+        </div>
+      </div>
+    );
+  }
+
+  if (!data || data.items.length === 0 || !currentWallet) {
+    return (
+      <div className="w-full flex justify-center">
+        <div className="flex flex-col max-w-3xl w-full gap-4 p-4">
+          <ActivityEmpty />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-1 items-center justify-center">
-      <h3>Activity Page</h3>
+    <div className="w-full flex justify-center">
+      <div className="flex flex-col max-w-3xl w-full gap-4 p-4">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/">
+              <ChevronLeft />
+            </Link>
+          </Button>
+          <h1 className="text-lg font-semibold">My Activity</h1>
+        </div>
+        <div className="space-y-4 w-full">
+          {data.items.map((activity) => {
+            const childChain = chainsList.find((c) => c.chainId === activity.childChainId);
+            const parentChain = chainsList.find((c) => c.chainId === childChain?.parentChainId);
+            const nativeTokenData =
+              childChain?.bridgeUiConfig.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
+
+            return (
+              <Card key={activity.id} className="overflow-hidden rounded-2xl">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 gap-4">
+                  <div className="flex flex-col flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      {activity.status === ActivityStatus.INITIALIZED && (
+                        <ClockFading className="h-4 w-4 text-slate-800" />
+                      )}
+                      {activity.status === ActivityStatus.EXECUTED_BUT_FAILED && (
+                        <CircleX className="h-4 w-4 text-red-500" />
+                      )}
+                      {activity.status === ActivityStatus.CLAIMED && (
+                        <CircleCheck className="h-4 w-4 text-green-500" />
+                      )}
+                      {activity.status === ActivityStatus.READY_TO_CLAIM && (
+                        <CircleAlert className="h-4 w-4 text-blue-500" />
+                      )}
+                      <span
+                        className={cn("font-medium", {
+                          "text-slate-800": activity.status === ActivityStatus.INITIALIZED,
+                          "text-blue-500": activity.status === ActivityStatus.READY_TO_CLAIM,
+                          "text-green-500": activity.status === ActivityStatus.CLAIMED,
+                          "text-red-500": activity.status === ActivityStatus.EXECUTED_BUT_FAILED,
+                        })}
+                      >
+                        {statusToTitle[activity.status as keyof typeof statusToTitle]}
+                      </span>
+                    </div>
+                    <div className="mt-1 text-sm text-gray-500">
+                      {formatDate(new Date(activity.createdAt * 1000), "MMM d, yyyy h:mm a")}
+                    </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <span className="text-sm text-gray-600">
+                        {childChain?.name || "Unknown Chain"}
+                      </span>
+                      <span className="text-sm text-gray-400">→</span>
+                      <span className="text-sm text-gray-600">
+                        {parentChain?.name || "Unknown Chain"}
+                      </span>
+                      <span className="text-sm text-gray-400">•</span>
+                      <span className="text-sm font-medium">
+                        {activity.withdrawAmount} {nativeTokenData.symbol}
+                      </span>
+                    </div>
+                  </div>
+                  <Button variant="outline" size="sm" className="shrink-0" asChild>
+                    <Link
+                      to="/activity/$activityId"
+                      params={{ activityId: activity.id.toString() }}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      View Details
+                    </Link>
+                  </Button>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+        {data && data.totalPages > 1 && (
+          <div className="mt-4 flex items-center justify-center gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span className="sr-only">Previous page</span>
+            </Button>
+            <span className="text-sm text-gray-600">
+              Page {page} of {data.totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
+              disabled={page === data.totalPages}
+            >
+              <ChevronRight className="h-4 w-4" />
+              <span className="sr-only">Next page</span>
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

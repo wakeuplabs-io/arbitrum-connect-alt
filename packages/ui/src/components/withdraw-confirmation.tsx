@@ -10,11 +10,12 @@ import { useState } from "react";
 import WithdrawDetails from "./withdraw-detalis";
 import type { AppType } from "@arbitrum-connect/api";
 import useWithdrawRequest from "@/hoc/useWithdrawRequest";
-import { useConnectWallet } from "@web3-onboard/react";
+import { useConnectWallet, useSetChain } from "@web3-onboard/react";
 import { ChevronLeft } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import useTransitions from "@/hoc/useTransitions";
+import { utils } from "ethers";
 
 interface WithdrawConfirmationProps {
   childChain: ChainData;
@@ -34,6 +35,14 @@ export default function WithdrawConfirmation({
   onSuccess,
 }: WithdrawConfirmationProps) {
   const [{ wallet }] = useConnectWallet();
+  const [
+    {
+      connectedChain, // the current chain the user's wallet is connected to
+      settingChain, // boolean indicating if the chain is in the process of being set
+    },
+    setChain, // function to call to initiate user to switch chains in their wallet
+  ] = useSetChain();
+
   const walletAddress = wallet?.accounts[0]?.address;
   const [understoodProcess, setUnderstoodProcess] = useState(false);
   const [understoodTimes, setUnderstoodTimes] = useState(false);
@@ -48,6 +57,17 @@ export default function WithdrawConfirmation({
     formattedEstimatedGas,
     isLoading: isWithdrawRequestLoading,
   } = useWithdrawRequest(childChain, amount);
+
+  console.log(
+    JSON.stringify(
+      {
+        withdrawRequest,
+        estimatedGas,
+      },
+      null,
+      2,
+    ),
+  );
 
   const handleConfirm = async () => {
     if (!walletAddress || !withdrawRequest || !estimatedGas || !wallet) return;
@@ -140,25 +160,38 @@ export default function WithdrawConfirmation({
         </div>
       </div>
 
-      <div className="pt-4">
-        <Button
-          onClick={handleConfirm}
-          className="w-full"
-          disabled={
-            isWithdrawRequestLoading ||
-            isBalanceLoading ||
-            isExecutingWithdraw ||
-            !understoodProcess ||
-            !understoodTimes
-          }
-        >
-          {isExecutingWithdraw && "Executing..."}
-          {!isExecutingWithdraw && (isWithdrawRequestLoading || isBalanceLoading) && "Loading..."}
-          {!isExecutingWithdraw &&
-            !isWithdrawRequestLoading &&
-            !isBalanceLoading &&
-            "Confirm Withdraw"}
-        </Button>
+      <div className="pt-4 flex flex-col gap-4">
+        {connectedChain?.id !== utils.hexlify(childChain.chainId) && (
+          <Button
+            onClick={() => setChain({ chainId: utils.hexlify(childChain.chainId) })}
+            className="w-full"
+            disabled={settingChain}
+          >
+            {settingChain && "Switching..."}
+            {!settingChain && `Switch to ${childChain.name}`}
+          </Button>
+        )}
+
+        {connectedChain?.id === utils.hexlify(childChain.chainId) && (
+          <Button
+            onClick={handleConfirm}
+            className="w-full"
+            disabled={
+              isWithdrawRequestLoading ||
+              isBalanceLoading ||
+              isExecutingWithdraw ||
+              !understoodProcess ||
+              !understoodTimes
+            }
+          >
+            {isExecutingWithdraw && "Executing..."}
+            {!isExecutingWithdraw && (isWithdrawRequestLoading || isBalanceLoading) && "Loading..."}
+            {!isExecutingWithdraw &&
+              !isWithdrawRequestLoading &&
+              !isBalanceLoading &&
+              "Confirm Withdraw"}
+          </Button>
+        )}
       </div>
     </div>
   );

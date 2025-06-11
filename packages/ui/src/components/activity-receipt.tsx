@@ -72,9 +72,9 @@ export const ActivityReceipt = ({ activity }: { activity: GetActivityResponse })
   const nativeTokenData = childChain.bridgeUiConfig.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
 
   return (
-    <div className="flex items-center justify-center p-6 w-full">
+    <div className="flex items-center justify-center w-full">
       <Card className="w-full border-none text-center shadow-none bg-transparent">
-        <CardHeader className="items-center w-full">
+        <CardHeader className="items-center w-full p-0">
           <ScrollText className="h-12 w-12 text-blue-500" />
           <CardTitle className="pt-4 text-3xl font-bold">
             {statusToTitle[activity.status as keyof typeof statusToTitle] ?? "-"}
@@ -89,7 +89,7 @@ export const ActivityReceipt = ({ activity }: { activity: GetActivityResponse })
             {statusShorted[activity.status as keyof typeof statusShorted] ?? "-"}
           </CardDescription>
         </CardHeader>
-        <CardContent className="mt-6 flex flex-col gap-2 w-full">
+        <CardContent className="my-6 flex flex-col gap-2 w-full p-0">
           <div className="rounded-lg border bg-gray-100/50">
             <div className="flex flex-wrap items-center justify-between text-sm p-4 border-b">
               <div
@@ -184,7 +184,7 @@ export const ActivityReceipt = ({ activity }: { activity: GetActivityResponse })
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-6">
+        <CardFooter className="flex flex-col gap-6 p-0">
           <section className="w-full flex flex-col gap-3">
             {activity.status === ActivityStatus.READY_TO_CLAIM && (
               <Button

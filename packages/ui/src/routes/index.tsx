@@ -31,7 +31,6 @@ function Index() {
   };
 
   const handleOnWithdrawSuccess = (activityId: number) => {
-    setShowConfirmation(false);
     navigate({ to: "/activity/$activityId", params: { activityId: activityId.toString() } });
   };
 

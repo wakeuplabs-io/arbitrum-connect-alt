@@ -4,6 +4,25 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import { jsonContent } from "stoker/openapi/helpers";
 import { createMessageObjectSchema } from "stoker/openapi/schemas";
 
+export const ListActivityResponseSchema = z.object({
+  items: z.array(
+    z.object({
+      id: z.number(),
+      status: z.string(),
+      createdAt: z.number(),
+      walletAddress: z.string(),
+      withdrawAmount: z.string(),
+      childChainWithdrawTxHash: z.string(),
+      childChainId: z.number(),
+    }),
+  ),
+  total: z.number(),
+  page: z.number(),
+  totalPages: z.number(),
+});
+
+export type ListActivityResponse = z.infer<typeof ListActivityResponseSchema>;
+
 export const listActivitiesRoute = createRoute({
   path: "/activities",
   method: "get",
@@ -13,21 +32,13 @@ export const listActivitiesRoute = createRoute({
       walletAddress: z.string().refine((address) => ethers.utils.isAddress(address), {
         message: "Invalid wallet address",
       }),
+      page: z.string().optional().default("1"),
+      limit: z.string().optional().default("10"),
     }),
   },
   responses: {
     [HttpStatusCodes.OK]: jsonContent(
-      z.array(
-        z.object({
-          id: z.number(),
-          status: z.string(),
-          createdAt: z.number(),
-          walletAddress: z.string(),
-          withdrawAmount: z.string(),
-          childChainWithdrawTxHash: z.string(),
-          childChainId: z.number(),
-        }),
-      ),
+      ListActivityResponseSchema,
       "Activities retrieved successfully",
     ),
     [HttpStatusCodes.BAD_REQUEST]: jsonContent(
