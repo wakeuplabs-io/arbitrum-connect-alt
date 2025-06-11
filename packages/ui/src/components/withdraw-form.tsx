@@ -15,12 +15,6 @@ import * as z from "zod";
 import ConnectWallet from "./connect-wallet";
 import WithdrawDetails from "./withdraw-detalis";
 
-const parseNumber = (val: string) => {
-  if (val === "") return 0;
-  const filtered = val.replace(/[^0-9.]/g, "");
-  return Number(filtered);
-};
-
 export default function WithdrawForm({
   childChain,
   formattedBalance,

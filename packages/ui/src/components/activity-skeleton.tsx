@@ -1,4 +1,4 @@
-import { ScrollText, Clock, Hash, ExternalLink, CornerUpLeft, CornerUpRight } from "lucide-react";
+import { ScrollText, Hash, CornerUpLeft, CornerUpRight } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Link } from "@tanstack/react-router";

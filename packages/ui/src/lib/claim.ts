@@ -1,9 +1,5 @@
 import { ChainData } from "@/blockchain/chainsJsonType";
-import {
-  ChildTransactionReceipt,
-  registerCustomArbitrumNetwork,
-  ChildToParentMessage,
-} from "@arbitrum/sdk";
+import { ChildTransactionReceipt, registerCustomArbitrumNetwork } from "@arbitrum/sdk";
 import { ethers } from "ethers";
 
 // 🔧 Constante de incremento total del costo (ej: 1.5 = +50%)
