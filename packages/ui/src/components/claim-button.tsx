@@ -10,8 +10,7 @@ import {
 import { useConnectWallet, useSetChain } from "@web3-onboard/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { estimateGasLimitClaim, claim } from "@/lib/claim";
-import { ETH_NATIVE_TOKEN_DATA } from "@/blockchain/chainsJsonType";
-import { allChains } from "@/blockchain/chains";
+import { ETH_NATIVE_TOKEN_DATA, allChains, toHex } from "@arbitrum-connect/utils";
 import { useState } from "react";
 import { X } from "lucide-react";
 import useBalance from "@/hoc/useBalance";
@@ -20,7 +19,7 @@ import useLoaingDots from "@/hoc/useLoadingDots";
 import { cn } from "@/lib/utils";
 import { GetActivityResponse } from "@arbitrum-connect/api/src/routes/activities/get.routes";
 import { toast } from "sonner";
-import toHex from "@/blockchain/toHex";
+import parseError from "@/lib/parseError";
 
 interface ClaimButtonProps {
   activity: GetActivityResponse;
@@ -54,7 +53,7 @@ export default function ClaimButton({ activity }: ClaimButtonProps) {
 
   const formattedBalanceWithLoadingDots = useLoaingDots(formattedBalance, isBalanceLoading);
 
-  const { data: gasEstimation, isLoading: isGasEstimationLoading } = useQuery({
+  const { data: gasEstimation, status: gasEstimationStatus } = useQuery({
     queryKey: ["claimGasEstimation", parentChain?.chainId],
     queryFn: async () => {
       if (!parentChain) throw new Error("Parent chain not found");
@@ -65,7 +64,7 @@ export default function ClaimButton({ activity }: ClaimButtonProps) {
 
   const gasEstimationWithLoadingDots = useLoaingDots(
     gasEstimation?.gasCostInEther ?? "0",
-    isGasEstimationLoading,
+    gasEstimationStatus === "pending",
   );
 
   const handleClaim = async () => {
@@ -91,7 +90,7 @@ export default function ClaimButton({ activity }: ClaimButtonProps) {
     } catch (error) {
       console.error("Error claiming:", error);
       toast.error("Error claiming", {
-        description: "Please try again later",
+        description: parseError(error),
       });
     } finally {
       setIsDialogOpen(false);
@@ -102,10 +101,14 @@ export default function ClaimButton({ activity }: ClaimButtonProps) {
 
   if (!childChain || !parentChain) return null;
 
-  const nativeTokenData = parentChain.bridgeUiConfig.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
+  const childNativeTokenData = childChain.bridgeUiConfig?.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
+  const parentNativeTokenData =
+    parentChain.bridgeUiConfig?.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
 
   const insufficientFunds =
-    !isBalanceLoading && !isGasEstimationLoading && balance.lt(gasEstimation?.gasCost ?? 0);
+    !isBalanceLoading &&
+    gasEstimationStatus !== "pending" &&
+    balance.lt(gasEstimation?.gasCost ?? 0);
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -129,9 +132,13 @@ export default function ClaimButton({ activity }: ClaimButtonProps) {
           <div className="overflow-hidden w-full rounded-3xl border bg-card p-6 text-center">
             <span className="text-xs font-extralight text-muted-foreground">Amount to claim</span>
             <div className="flex items-center justify-center gap-2 pt-1">
-              <img src={nativeTokenData.logoUrl} alt={nativeTokenData.name} className="size-8" />
+              <img
+                src={childNativeTokenData.logoUrl}
+                alt={childNativeTokenData.name}
+                className="size-8"
+              />
               <span className="text-5xl font-medium tracking-tighter">
-                {activity.withdrawAmount} {nativeTokenData.symbol}
+                {activity.withdrawAmount} {childNativeTokenData.symbol}
               </span>
             </div>
           </div>
@@ -140,13 +147,13 @@ export default function ClaimButton({ activity }: ClaimButtonProps) {
             <div className="flex items-center gap-2 justify-between">
               <span className="text-sm font-extralight text-muted-foreground">Your Balance</span>
               <span className="font-medium">
-                {formattedBalanceWithLoadingDots} {nativeTokenData.symbol}
+                {formattedBalanceWithLoadingDots} {parentNativeTokenData.symbol}
               </span>
             </div>
             <div className="flex items-center gap-2 justify-between">
               <span className="text-sm font-extralight text-muted-foreground">Network fees</span>
               <span className="font-medium">
-                ~{gasEstimationWithLoadingDots} {nativeTokenData.symbol}
+                ~{gasEstimationWithLoadingDots} {parentNativeTokenData.symbol}
               </span>
             </div>
           </div>
@@ -176,7 +183,10 @@ export default function ClaimButton({ activity }: ClaimButtonProps) {
             <Button
               onClick={handleClaim}
               disabled={
-                isExecutingClaim || isGasEstimationLoading || isBalanceLoading || insufficientFunds
+                isExecutingClaim ||
+                gasEstimationStatus === "pending" ||
+                isBalanceLoading ||
+                insufficientFunds
               }
               className={cn(
                 "w-full bg-blue-500 text-white hover:bg-blue-400",

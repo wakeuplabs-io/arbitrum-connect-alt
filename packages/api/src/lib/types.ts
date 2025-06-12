@@ -23,3 +23,4 @@ export const SECONDS_IN_MINUTE = 60;
 export const SECONDS_IN_HOUR = 3600;
 export const SECONDS_IN_DAY = 86400;
 export const CONFIRMATION_BUFFER_MINUTES = 60;
+export const BLOCK_TIME_IN_SECONDS = 12;

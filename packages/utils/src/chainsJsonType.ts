@@ -55,5 +55,6 @@ export type ChainData = {
     network: {
       logo: string;
     };
+    fastWithdrawalTime?: number;
   };
 };

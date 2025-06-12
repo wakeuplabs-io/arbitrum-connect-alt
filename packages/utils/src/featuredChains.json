@@ -64,7 +64,7 @@
       "name": "Ethereum",
       "chainId": 1,
       "parentChainId": 0,
-      "rpcUrl": "https://eth.llamarpc.com",
+      "rpcUrl": "https://ethereum-rpc.publicnode.com",
       "blockExplorers": {
         "default": {
           "name": "Etherscan",

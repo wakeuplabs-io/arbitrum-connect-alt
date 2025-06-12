@@ -10,6 +10,7 @@
   "references": [
     { "path": "./packages/api" },
     { "path": "./packages/ui" },
-    { "path": "./packages/db" }
+    { "path": "./packages/db" },
+    { "path": "./packages/utils" }
   ]
 }

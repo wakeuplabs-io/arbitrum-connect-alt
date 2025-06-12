@@ -1,6 +1,6 @@
 "use client";
 
-import { ChainData, ETH_NATIVE_TOKEN_DATA } from "@/blockchain/chainsJsonType";
+import { ChainData, ETH_NATIVE_TOKEN_DATA, toHex } from "@arbitrum-connect/utils";
 import { Button } from "@/components/ui/button";
 import envParsed from "@/envParsed";
 import getEthersProvider from "@/lib/getEthersProvider";
@@ -15,7 +15,6 @@ import { ChevronLeft } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import useTransitions from "@/hoc/useTransitions";
-import toHex from "@/blockchain/toHex";
 
 interface WithdrawConfirmationProps {
   childChain: ChainData;
@@ -49,7 +48,7 @@ export default function WithdrawConfirmation({
 
   const [isExecutingWithdraw, startExecutingWithdraw] = useTransitions();
   const client = hc<AppType>(envParsed().API_URL);
-  const nativeTokenData = childChain.bridgeUiConfig.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
+  const nativeTokenData = childChain.bridgeUiConfig?.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
 
   const {
     withdrawRequest,

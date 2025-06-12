@@ -1,11 +1,10 @@
-import { ChainData } from "@/blockchain/chainsJsonType";
+import { ChainData, toHex } from "@arbitrum-connect/utils";
 import {
   ChildToParentTransactionRequest,
   EthBridger,
   registerCustomArbitrumNetwork,
 } from "@arbitrum/sdk";
 import { BigNumber, ethers } from "ethers";
-import toHex from "@/blockchain/toHex";
 
 function percentIncrease(value: BigNumber, percent: BigNumber): BigNumber {
   return value.mul(percent.add(100)).div(100);

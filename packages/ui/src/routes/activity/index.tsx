@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { hc } from "hono/client";
 import { AppType } from "@arbitrum-connect/api";
 import envParsed from "@/envParsed";
-import { allChains } from "@/blockchain/chains";
+import { allChains, ETH_NATIVE_TOKEN_DATA } from "@arbitrum-connect/utils";
 import { formatDate } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useConnectWallet } from "@web3-onboard/react";
-import { ETH_NATIVE_TOKEN_DATA } from "@/blockchain/chainsJsonType";
 import { cn } from "@/lib/utils";
 import { ActivityListSkeleton } from "@/components/activity-list-skeleton";
 import { ActivityError } from "@/components/activity-error";
@@ -120,7 +119,7 @@ function Activity() {
             const childChain = chainsList.find((c) => c.chainId === activity.childChainId);
             const parentChain = chainsList.find((c) => c.chainId === childChain?.parentChainId);
             const nativeTokenData =
-              childChain?.bridgeUiConfig.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
+              childChain?.bridgeUiConfig?.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
 
             return (
               <Card key={activity.id} className="overflow-hidden rounded-2xl">

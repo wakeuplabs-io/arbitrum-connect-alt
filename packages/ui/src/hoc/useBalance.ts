@@ -1,4 +1,4 @@
-import { ChainData } from "@/blockchain/chainsJsonType";
+import { ChainData } from "@arbitrum-connect/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useConnectWallet } from "@web3-onboard/react";
 import { BigNumber, ethers } from "ethers";
@@ -15,7 +15,7 @@ export default function useBalance(chain: ChainData | null | undefined): UseBala
   const [{ wallet }] = useConnectWallet();
   const currentWallet = wallet?.accounts[0];
 
-  const { data: balanceData, isFetching } = useQuery({
+  const { data: balanceData, status: balanceStatus } = useQuery({
     queryKey: ["balance", currentWallet?.address, chain?.rpcUrl],
     queryFn: async () => {
       if (!currentWallet) {
@@ -38,10 +38,6 @@ export default function useBalance(chain: ChainData | null | undefined): UseBala
     },
     refetchInterval: REFRESH_INTERVAL,
     enabled: !!currentWallet && !!chain,
-    initialData: {
-      balance: BigNumber.from(0),
-      formattedBalance: "0",
-    },
   });
 
   if (!chain || !currentWallet) {
@@ -53,8 +49,8 @@ export default function useBalance(chain: ChainData | null | undefined): UseBala
   }
 
   return {
-    balance: balanceData.balance,
-    formattedBalance: balanceData.formattedBalance,
-    isLoading: isFetching,
+    balance: balanceData?.balance ?? BigNumber.from(0),
+    formattedBalance: balanceData?.formattedBalance ?? "0",
+    isLoading: balanceStatus === "pending",
   };
 }

@@ -1,8 +1,8 @@
-import { allChains, featuredChains, orbitsChains } from "@/blockchain/chains";
+import { allChains, featuredChains, orbitsChains } from "@arbitrum-connect/utils";
 import debounce from "lodash/debounce";
 import { useCallback, useMemo, useState } from "react";
 
-const chainsList = [...allChains.testnet, ...allChains.mainnet];
+const chainsList = [...allChains.mainnet, ...allChains.testnet];
 
 export default function useChainSelector() {
   const [showTestnets, setShowTestnets] = useState(false);
@@ -93,5 +93,4 @@ export default function useChainSelector() {
     filteredOrbitChains,
   } as const;
 }
-
 export type ChainSelectorProps = ReturnType<typeof useChainSelector>;

@@ -1,11 +1,9 @@
-import { ETH_NATIVE_TOKEN_DATA } from "@/blockchain/chainsJsonType";
-import { allChains } from "@/blockchain/chains";
+import { ETH_NATIVE_TOKEN_DATA, allChains, toHex } from "@arbitrum-connect/utils";
 import Icons from "@/shared/icons";
 import type { AppMetadata, Chain } from "@web3-onboard/common";
 import injectedModule from "@web3-onboard/injected-wallets";
 import { Web3OnboardProvider, init } from "@web3-onboard/react";
 import { PropsWithChildren } from "react";
-import toHex from "@/blockchain/toHex";
 
 const chainList = [...allChains.mainnet, ...allChains.testnet];
 
@@ -18,14 +16,14 @@ const injected = injectedModule({
 const wallets = [injected];
 
 const chains: Chain[] = chainList.map((chain) => {
-  const nativeTokenData = chain.bridgeUiConfig.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
+  const nativeTokenData = chain.bridgeUiConfig?.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
 
   return {
     id: toHex(chain.chainId),
     token: nativeTokenData.symbol,
     label: chain.name,
     rpcUrl: chain.rpcUrl,
-    icon: chain.bridgeUiConfig.network.logo,
+    icon: nativeTokenData.logoUrl,
   };
 });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChainData, ETH_NATIVE_TOKEN_DATA } from "@/blockchain/chainsJsonType";
+import { ChainData, ETH_NATIVE_TOKEN_DATA } from "@arbitrum-connect/utils";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -64,10 +64,6 @@ export default function WithdrawForm({
 
   function onSubmit(data: FormValues) {
     if (!walletAddress || !withdrawRequest) return;
-
-    console.log("onSubmit", data);
-
-    return;
 
     setErrorMessage(null);
 

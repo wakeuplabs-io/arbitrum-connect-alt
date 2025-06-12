@@ -1,4 +1,4 @@
-import { ChainData } from "@/blockchain/chainsJsonType";
+import { ChainData } from "@arbitrum-connect/utils";
 import { createWithdrawalRequest, estimateGasLimitWithdrawalRequest } from "@/lib/withdraw";
 import { useQuery } from "@tanstack/react-query";
 import { useConnectWallet } from "@web3-onboard/react";
@@ -14,7 +14,7 @@ export default function useWithdrawRequest(childChain: ChainData, amount: string
   const {
     data: withdrawRequest,
     error: withdrawRequestError,
-    isFetching: isWithdrawRequestFetching,
+    status: withdrawRequestStatus,
   } = useQuery({
     queryKey: ["withdrawRequest", childChain?.chainId, amount, walletAddress],
     queryFn: async () => {
@@ -27,7 +27,7 @@ export default function useWithdrawRequest(childChain: ChainData, amount: string
   // Query for gas estimation with 5 second refetch interval
   const {
     data: estimatedGas,
-    isFetching: isFetchingEstimatedGas,
+    status: estimatedGasStatus,
     error: estimateGasError,
   } = useQuery({
     queryKey: ["estimatedGas", childChain?.chainId, withdrawRequest],
@@ -41,12 +41,22 @@ export default function useWithdrawRequest(childChain: ChainData, amount: string
 
   const formattedEstimatedGas = estimatedGas ? ethers.utils.formatEther(estimatedGas) : "-";
 
-  const isLoading = isWithdrawRequestFetching || isFetchingEstimatedGas;
+  const isLoading = withdrawRequestStatus === "pending" || estimatedGasStatus === "pending";
 
   const error = withdrawRequestError || estimateGasError;
 
   if (error) {
     console.error("error", error);
+  }
+
+  if (!childChain || !amount || !walletAddress) {
+    return {
+      withdrawRequest: null,
+      estimatedGas: null,
+      isLoading: false,
+      error: null,
+      formattedEstimatedGas: "0",
+    };
   }
 
   return {

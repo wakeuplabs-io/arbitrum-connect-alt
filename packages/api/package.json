@@ -23,6 +23,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@arbitrum-connect/utils": "*",
     "@arbitrum-connect/db": "*",
     "@hono/node-server": "^1.8.0",
     "@hono/swagger-ui": "^0.5.1",

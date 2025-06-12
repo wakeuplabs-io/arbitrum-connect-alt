@@ -3,7 +3,7 @@ import { db } from "@arbitrum-connect/db/config";
 import { z } from "@hono/zod-openapi";
 import { eq } from "drizzle-orm";
 import * as HttpStatusCodes from "stoker/http-status-codes";
-import { allChains } from "../../blockchain/chains";
+import { allChains } from "@arbitrum-connect/utils";
 import { AppRouteHandler, TxStatus } from "../../lib/types";
 import { GetActivityRoute, getActivityRoute } from "./get.routes";
 import { getWithdrawalStatus, WithdrawalStatus } from "../../lib/getWithdrawalStatus";

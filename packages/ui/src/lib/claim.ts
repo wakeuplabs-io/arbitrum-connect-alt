@@ -1,5 +1,9 @@
-import { ChainData } from "@/blockchain/chainsJsonType";
-import { ChildTransactionReceipt, registerCustomArbitrumNetwork } from "@arbitrum/sdk";
+import { ChainData } from "@arbitrum-connect/utils";
+import {
+  ChildToParentMessageStatus,
+  ChildTransactionReceipt,
+  registerCustomArbitrumNetwork,
+} from "@arbitrum/sdk";
 import { ethers } from "ethers";
 
 // 🔧 Constante de incremento total del costo (ej: 1.5 = +50%)
@@ -53,14 +57,12 @@ export async function claim(
 
   // Get transaction receipt and extract event
   const txReceipt = await childChainProvider.getTransactionReceipt(childChainWithdrawalTxHash);
-  const l2TxReceipt = new ChildTransactionReceipt(txReceipt);
-  const [event] = l2TxReceipt.getChildToParentEvents();
+  const childToParentReceipt = new ChildTransactionReceipt(txReceipt);
+  const [event] = childToParentReceipt.getChildToParentEvents();
 
   if (!event) {
     throw new Error("Withdrawal request event not found.");
   }
-
-  const childToParentReceipt = new ChildTransactionReceipt(txReceipt);
 
   // Get messages from child to parent
   const messages = await childToParentReceipt.getChildToParentMessages(parentChainSigner);
@@ -68,9 +70,17 @@ export async function claim(
     throw new Error("No child to parent message found in transaction");
   }
 
-  const message = messages[0];
+  const messageStatus = await messages[0].status(childChainProvider);
 
-  const claimTx = await message.execute(childChainProvider, {
+  if (messageStatus === ChildToParentMessageStatus.UNCONFIRMED) {
+    throw new Error("Message not ready to be claimed yet");
+  }
+
+  if (messageStatus === ChildToParentMessageStatus.EXECUTED) {
+    throw new Error("Message already claimed");
+  }
+
+  const claimTx = await messages[0].execute(childChainProvider, {
     gasPrice: gasCostDetails.gasPrice,
     gasLimit: gasCostDetails.gasLimit,
   });

@@ -1,4 +1,4 @@
-import { ChainData, ETH_NATIVE_TOKEN_DATA } from "@/blockchain/chainsJsonType";
+import { ChainData, ETH_NATIVE_TOKEN_DATA } from "@arbitrum-connect/utils";
 import useLoaingDots from "@/hoc/useLoadingDots";
 import shortenAddress from "@/lib/shortenAddress";
 import { useConnectWallet } from "@web3-onboard/react";
