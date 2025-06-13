@@ -45,3 +45,5 @@ packages/ui/cache
 
 # build info
 tsconfig.tsbuildinfo
+**/*.tsbuildinfo
+**/**/*.tsbuildinfo
