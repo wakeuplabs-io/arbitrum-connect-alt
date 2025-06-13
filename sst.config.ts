@@ -62,7 +62,7 @@ export default $config({
 
     // -> API Function
     const api = new sst.aws.Function(`${$app.stage}-${PROJECT_NAME}-api`, {
-      handler: "packages/api/dist/index.handler",
+      handler: "packages/api/dist/bundle.handler",
       url: true,
       environment: {
         DATABASE_URL: process.env.DATABASE_URL ?? "",
