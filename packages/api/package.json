@@ -23,8 +23,8 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@arbitrum-connect/utils": "*",
-    "@arbitrum-connect/db": "*",
+    "@arbitrum-connect/utils": "file:../utils",
+    "@arbitrum-connect/db": "file:../db",
     "@hono/node-server": "^1.8.0",
     "@hono/swagger-ui": "^0.5.1",
     "@hono/zod-openapi": "^0.19.2",

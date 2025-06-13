@@ -45,8 +45,27 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: sa-east-1
 
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Build Utils
+        run: npm run build -w @arbitrum-connect/utils
+
+      - name: Build Db
+        run: npm run build -w @arbitrum-connect/db
+
+      - name: Build Api
+        run: npm run build -w @arbitrum-connect/api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Deploy
         run: |

@@ -42,3 +42,6 @@ packages/ui/cache
 
 # sst
 .sst
+
+# build info
+tsconfig.tsbuildinfo
