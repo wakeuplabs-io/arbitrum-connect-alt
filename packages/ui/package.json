@@ -10,8 +10,8 @@
     "routes": "tsr generate"
   },
   "dependencies": {
-    "@arbitrum-connect/api": "*",
-    "@arbitrum-connect/utils": "*",
+    "@arbitrum-connect/api": "file:../api",
+    "@arbitrum-connect/utils": "file:../utils",
     "@arbitrum/sdk": "4.0.4",
     "@hookform/resolvers": "3.3.4",
     "@radix-ui/react-checkbox": "1.1.1",
