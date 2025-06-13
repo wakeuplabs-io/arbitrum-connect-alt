@@ -5,9 +5,6 @@
  *
  * @module app
  */
-
-import { cors } from "hono/cors";
-import env from "./env";
 import configureOpenAPI from "./lib/configure-open-api";
 import createApp from "./lib/create-app";
 import activities from "./routes/activities/activities.index";
@@ -18,22 +15,6 @@ import activities from "./routes/activities/activities.index";
  * @type {import('./lib/types').AppOpenAPI}
  */
 const app = createApp();
-
-/**
- * CORS middleware configuration
- * Allows requests from origins specified in the CORS_ORIGINS environment variable
- * Origins are specified as a comma-separated list
- * @example
- * // Example of CORS_ORIGINS in .env
- * CORS_ORIGINS=http://localhost:3000,https://example.com
- */
-app.use(
-  "/*",
-  cors({
-    origin: env.CORS_ORIGINS.split(",").map((origin) => origin.trim()),
-    credentials: true,
-  }),
-);
 
 const apiRoutes = app.route("/api", activities);
 

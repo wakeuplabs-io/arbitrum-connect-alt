@@ -67,7 +67,7 @@ export default $config({
       url: true,
       environment: {
         DATABASE_URL: process.env.DATABASE_URL ?? "",
-        CORS_ORIGINS: UI_URL,
+        UI_URL: UI_URL,
       },
     });
     // API Function <-
@@ -100,7 +100,7 @@ export default $config({
         output: "dist",
       },
       environment: {
-        VITE_API_URL: api.url,
+        VITE_API_URL: apiGateway.url,
       },
       assets: {
         textEncoding: "utf-8",

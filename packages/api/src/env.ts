@@ -15,7 +15,7 @@ const EnvSchema = z.object({
   LOG_LEVEL: z
     .enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
     .default("error"),
-  CORS_ORIGINS: z.string().default("http://localhost:3000"),
+  UI_URL: z.string().trim().default("http://localhost:3000"),
 });
 
 export type env = z.infer<typeof EnvSchema>;
