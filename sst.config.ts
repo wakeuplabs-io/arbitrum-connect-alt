@@ -113,7 +113,7 @@ export default $config({
             cacheControl: "max-age=0,no-cache,no-store,must-revalidate",
           },
           {
-            files: ["**/*.png", "**/*.jpg", "**/*.jpeg", "**/*.gif", "**/*.svg"],
+            files: ["**/*.png", "**/*.jpg", "**/*.jpeg", "**/*.gif", "**/*.svg", "**/*.webp"],
             cacheControl: "max-age=31536000,public,immutable",
           },
         ],
