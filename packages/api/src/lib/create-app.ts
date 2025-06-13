@@ -8,6 +8,7 @@
 
 import type { Schema } from "hono";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { cors } from "hono/cors";
 import { requestId } from "hono/request-id";
 import { notFound, onError, serveEmojiFavicon } from "stoker/middlewares";
 import { defaultHook } from "stoker/openapi";
@@ -36,6 +37,7 @@ export function createRouter() {
  * @returns {AppOpenAPI} A fully configured Hono application instance
  * @description
  * Sets up an application with:
+ * - CORS middleware with wildcard origin
  * - Request ID tracking
  * - Emoji favicon (📝)
  * - Pino logging middleware
@@ -45,7 +47,16 @@ export function createRouter() {
 export default function createApp() {
   const app = createRouter();
 
-  // OPTIONS handling is done at the app level in app.ts
+  // Add CORS middleware with wildcard origin
+  app.use(
+    "*",
+    cors({
+      origin: "*",
+      allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowHeaders: ["Content-Type", "Authorization"],
+      credentials: false, // Must be false when origin is "*"
+    }),
+  );
 
   app.use(requestId()).use(serveEmojiFavicon("📝")).use(pinoLogger());
 
