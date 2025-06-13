@@ -35,7 +35,7 @@ export const Route = createFileRoute("/activity/$activityId")({
 function Activity() {
   const { activityId } = useParams({ from: "/activity/$activityId" });
 
-  const { status, data, error } = useQuery({
+  const { status, data, error, isFetching } = useQuery({
     queryKey: ["activity", activityId],
     queryFn: () => fetchActivity(activityId),
     refetchInterval: REFRESH_INTERVAL,
@@ -74,7 +74,7 @@ function Activity() {
   return (
     <div className="w-full flex justify-center">
       <div className="flex flex-col w-full max-w-3xl justify-center items-center gap-4 p-4">
-        <ActivityReceipt activity={data} />
+        <ActivityReceipt activity={data} isFetching={isFetching} />
       </div>
     </div>
   );

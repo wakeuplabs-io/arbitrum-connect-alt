@@ -2,6 +2,7 @@ import {
   ScrollText,
   Clock,
   LoaderCircle,
+  ClockFading,
   CircleX,
   CircleCheck,
   CircleAlert,
@@ -22,6 +23,7 @@ import { formatDate } from "date-fns";
 import { cn } from "@/lib/utils";
 import { GetActivityResponse } from "@arbitrum-connect/api/src/routes/activities/get.routes";
 import ClaimButton from "./claim-button";
+import EmergencyButton from "./emergency-button";
 
 const statusToTitle = {
   [ActivityStatus.INITIALIZED]: "Withdrawal Initiated",
@@ -48,7 +50,13 @@ const chainsList = [...allChains.testnet, ...allChains.mainnet];
 
 const GRACE_PERIOD_MINUTES = 15;
 
-export const ActivityReceipt = ({ activity }: { activity: GetActivityResponse }) => {
+export const ActivityReceipt = ({
+  activity,
+  isFetching,
+}: {
+  activity: GetActivityResponse;
+  isFetching: boolean;
+}) => {
   const childChain = chainsList.find((c) => c.chainId === activity.childChainId);
   const parentChain = chainsList.find((c) => c.chainId === childChain?.parentChainId);
 
@@ -76,7 +84,8 @@ export const ActivityReceipt = ({ activity }: { activity: GetActivityResponse })
     <div className="flex items-center justify-center w-full">
       <Card className="w-full border-none text-center shadow-none bg-transparent">
         <CardHeader className="items-center w-full p-0">
-          <ScrollText className="h-12 w-12 text-blue-500" />
+          {!isFetching && <ScrollText className="h-12 w-12 text-blue-500" />}
+          {isFetching && <LoaderCircle className="h-12 w-12 text-blue-500 animate-spin" />}
           <CardTitle className="pt-4 text-3xl font-bold">
             {statusToTitle[activity.status as keyof typeof statusToTitle] ?? "-"}
           </CardTitle>
@@ -103,7 +112,7 @@ export const ActivityReceipt = ({ activity }: { activity: GetActivityResponse })
                 })}
               >
                 {!timeExpired && activity.status === ActivityStatus.INITIALIZED && (
-                  <LoaderCircle className="mr-2 h-5 w-5 animate-spin" />
+                  <ClockFading className="mr-2 h-5 w-5" />
                 )}
                 {activity.status === ActivityStatus.EXECUTED_BUT_FAILED && (
                   <CircleX className="mr-2 h-5 w-5" />
@@ -198,15 +207,7 @@ export const ActivityReceipt = ({ activity }: { activity: GetActivityResponse })
             {activity.status === ActivityStatus.READY_TO_CLAIM && (
               <ClaimButton activity={activity} />
             )}
-            {timeExpired && (
-              <Button
-                size="lg"
-                asChild
-                className="w-full bg-yellow-500 text-white hover:bg-yellow-400"
-              >
-                <Link to="/activity">Try emergency process</Link>
-              </Button>
-            )}
+            {timeExpired && <EmergencyButton />}
           </section>
 
           <section className="w-full flex gap-3">

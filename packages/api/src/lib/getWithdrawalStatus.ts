@@ -5,9 +5,7 @@ import {
   registerCustomArbitrumNetwork,
 } from "@arbitrum/sdk";
 import { ethers } from "ethers";
-import formatTimeLeft from "./formatTimeLeft";
-import parseError from "./parseError";
-import { CONFIRMATION_BUFFER_MINUTES, SECONDS_IN_MINUTE, TxStatus } from "./types.js";
+import { SECONDS_IN_MINUTE, TxStatus } from "./types.js";
 import { ChainData, allChains } from "@arbitrum-connect/utils";
 import getConfirmationTime from "./getConfirmationTime";
 
@@ -81,30 +79,26 @@ export async function getWithdrawalStatus(
     };
   }
 
-  // Get transaction timestamp
-  const block = await childChainProvider.getBlock(txReceipt.blockNumber);
-  const createdAtTimestamp = block.timestamp * 1000; // Convert to milliseconds
-
-  const confirmationTimeInSeconds = getConfirmationTime(childChain);
-
-  // Calculate remaining time
-  const now = Date.now();
-  const confirmationDate = createdAtTimestamp + confirmationTimeInSeconds * 1000;
-  const timeLeftInSeconds = Math.max(Math.floor((confirmationDate - now) / 1000), 0);
-
-  // Format remaining time
-  const formattedTimeLeft = formatTimeLeft(timeLeftInSeconds);
-
-  if (timeLeftInSeconds === 0) {
+  if (messageStatus === ChildToParentMessageStatus.CONFIRMED) {
     return {
       status: WithdrawalStatus.READY_TO_CLAIM,
     };
   }
 
+  // Get transaction timestamp
+  const block = await childChainProvider.getBlock(txReceipt.blockNumber);
+  const createdAtTimestamp = block.timestamp; // Convert to milliseconds
+
+  const confirmationTimeInSeconds = getConfirmationTime(childChain);
+
+  // Calculate remaining time
+  const confirmationDate = createdAtTimestamp + confirmationTimeInSeconds;
+
+  const timeLeftInSeconds = Math.max(Math.floor((confirmationDate - Date.now()) / 1000), 0);
+  const addMinutesIfNoTimeLeft = timeLeftInSeconds === 0 ? 2 * SECONDS_IN_MINUTE : 0;
+
   return {
     status: WithdrawalStatus.CLAIM_IN_PROGRESS,
-    timeLeftInSeconds,
-    formattedTimeLeft,
-    claimableAt: confirmationDate / 1000,
+    claimableAt: confirmationDate + addMinutesIfNoTimeLeft,
   };
 }
