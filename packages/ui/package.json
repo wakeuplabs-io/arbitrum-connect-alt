@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm install && npx tsc && vite build",
+    "build": "npm install && npx tsc && npm run routes && vite build",
     "preview": "vite preview",
     "routes": "tsr generate"
   },
