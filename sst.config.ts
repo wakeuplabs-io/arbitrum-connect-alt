@@ -75,7 +75,7 @@ export default $config({
     // -> Lambda API (delete the unused one)
     const apiGateway = new sst.aws.ApiGatewayV2(`${$app.stage}-${PROJECT_NAME}-gateway`, {
       cors: {
-        allowOrigins: [UI_URL],
+        allowOrigins: [UI_URL?.replace(/\/$/, "")], // Remove trailing slash if present
         allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowHeaders: ["Content-Type", "Authorization"],
         allowCredentials: true,

@@ -44,6 +44,9 @@ export function createRouter() {
  */
 export default function createApp() {
   const app = createRouter();
+
+  // OPTIONS handling is done at the app level in app.ts
+
   app.use(requestId()).use(serveEmojiFavicon("📝")).use(pinoLogger());
 
   app.notFound(notFound);

@@ -16,6 +16,11 @@ import activities from "./routes/activities/activities.index";
  */
 const app = createApp();
 
+// Add explicit OPTIONS handling for preflight requests
+app.options("*", (c) => {
+  return c.text("", 200);
+});
+
 const apiRoutes = app.route("/api", activities);
 
 /**
