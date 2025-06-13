@@ -5,9 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm install && npx tsc && npm run routes && vite build",
-    "preview": "vite preview",
-    "routes": "tsr generate"
+    "build": "npm install && vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@arbitrum-connect/api": "file:../api",
@@ -23,8 +22,8 @@
     "@radix-ui/react-switch": "1.0.3",
     "@radix-ui/react-tooltip": "1.2.7",
     "@tanstack/react-query": "^5.40.0",
-    "@tanstack/react-router": "^1.114.17",
-    "@tanstack/router-cli": "^1.114.17",
+    "@tanstack/react-router": "1.121.2",
+    "@tanstack/react-router-devtools": "1.121.8",
     "@web3-onboard/core": "2.24.1",
     "@web3-onboard/injected-wallets": "2.11.3",
     "@web3-onboard/react": "2.11.0",
@@ -44,8 +43,7 @@
     "zod": "3.25.51"
   },
   "devDependencies": {
-    "@tanstack/react-router-devtools": "^1.114.17",
-    "@tanstack/router-vite-plugin": "^1.114.17",
+    "@tanstack/router-plugin": "1.121.9",
     "@types/node": "22.15.29",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
@@ -54,7 +52,7 @@
     "postcss": "^8.4.35",
     "tw-animate-css": "1.3.3",
     "typescript": "5.8.3",
-    "vite": "^4.5.2",
+    "vite": "6.3.5",
     "vite-tsconfig-paths": "5.1.4"
   }
 }

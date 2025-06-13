@@ -6,7 +6,7 @@ import envParsed from "@/envParsed";
 import { AppType } from "@arbitrum-connect/api";
 import { GetActivityResponse } from "@arbitrum-connect/api/src/routes/activities/get.routes";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useParams } from "@tanstack/react-router";
+import { useParams } from "@tanstack/react-router";
 import { hc } from "hono/client";
 
 const REFRESH_INTERVAL = 60000; // 1 minute
@@ -28,7 +28,7 @@ export async function fetchActivity(activityId: string) {
   return (await activity.json()) as GetActivityResponse;
 }
 
-export const Route = createFileRoute("/activity/$activityId")({
+export const Route = createFileRoute({
   component: Activity,
 });
 

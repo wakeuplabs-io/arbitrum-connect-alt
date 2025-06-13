@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { hc } from "hono/client";
 import { AppType } from "@arbitrum-connect/api";
@@ -57,7 +56,7 @@ async function fetchActivities(walletAddress: string, page: number = 1, limit: n
   return (await response.json()) as ListActivityResponse;
 }
 
-export const Route = createFileRoute("/activity/")({
+export const Route = createFileRoute({
   component: Activity,
 });
 

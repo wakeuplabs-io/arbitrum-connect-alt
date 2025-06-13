@@ -47,3 +47,7 @@ packages/ui/cache
 tsconfig.tsbuildinfo
 **/*.tsbuildinfo
 **/**/*.tsbuildinfo
+
+# Routes
+packages/ui/.tanstack
+packages/ui/src/routeTree.gen.ts

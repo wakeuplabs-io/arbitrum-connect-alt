@@ -4,10 +4,10 @@ import WithdrawForm from "@/components/withdraw-form";
 import useBalance from "@/hoc/useBalance";
 import useChainSelector from "@/hoc/useChainSelector";
 import useLoaingDots from "@/hoc/useLoadingDots";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute({
   component: Index,
 });
 
