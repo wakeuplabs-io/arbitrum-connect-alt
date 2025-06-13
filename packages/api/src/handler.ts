@@ -1,4 +1,7 @@
 import { handle } from "hono/aws-lambda";
 import app from "./app";
 
-module.exports = { handler: handle(app) };
+const handler = handle(app);
+
+// Export using CommonJS for AWS Lambda
+exports.handler = handler;
