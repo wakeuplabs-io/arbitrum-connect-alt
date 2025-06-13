@@ -61,6 +61,8 @@ jobs:
 
       - name: Build Db
         run: npm run build -w @arbitrum-connect/db
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Build Api
         run: npm run build -w @arbitrum-connect/api
