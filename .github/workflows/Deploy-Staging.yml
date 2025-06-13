@@ -3,19 +3,18 @@ name: Deploy
 on:
   push:
     branches:
-      - main
       - develop
 
 # Concurrency group name ensures concurrent workflow runs wait for any in-progress job to finish
 concurrency:
-   group: merge-${{ github.ref }}
+  group: merge-${{ github.ref }}
 
 jobs:
   Validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Validate Configuration
         run: |
           if grep -q 'const PROJECT_NAME: string = "";' sst.config.ts || grep -q 'const CUSTOMER: string = "";' sst.config.ts; then
@@ -29,6 +28,7 @@ jobs:
   Deploy:
     needs: Validate
     runs-on: ubuntu-latest
+    environment: staging
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v3
@@ -52,7 +52,7 @@ jobs:
         run: |
           # Set detailed log level
           export SST_LOG_LEVEL=debug
-          
+
           # Run with --verbose for more details
           if ! npx sst deploy --stage ${{ github.ref_name }} --verbose; then
             echo "::group::Deployment Error"
@@ -64,4 +64,5 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
+          UI_URL: ${{ vars.UI_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
