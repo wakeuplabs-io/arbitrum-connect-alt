@@ -16,20 +16,20 @@ export default defineConfig({
     react(),
     tsconfigPaths(),
   ] as any,
-  optimizeDeps: {
-    include: ["ethers", "@web3-onboard/react", "@arbitrum/sdk"],
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          "web3-libs": ["ethers", "@web3-onboard/react", "@web3-onboard/core"],
-          "arbitrum-sdk": ["@arbitrum/sdk"],
-          vendor: ["react", "react-dom", "@tanstack/react-query"],
-        },
-      },
-    },
-  },
+  // optimizeDeps: {
+  //   include: ["ethers", "@web3-onboard/react", "@arbitrum/sdk"],
+  // },
+  // build: {
+  //   rollupOptions: {
+  //     output: {
+  //       manualChunks: {
+  //         "web3-libs": ["ethers", "@web3-onboard/react", "@web3-onboard/core"],
+  //         "arbitrum-sdk": ["@arbitrum/sdk"],
+  //         vendor: ["react", "react-dom", "@tanstack/react-query"],
+  //       },
+  //     },
+  //   },
+  // },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
