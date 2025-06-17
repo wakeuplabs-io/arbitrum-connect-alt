@@ -10,11 +10,12 @@ import { useState } from "react";
 import WithdrawDetails from "./withdraw-detalis";
 import type { AppType } from "@arbitrum-connect/api";
 import useWithdrawRequest from "@/hoc/useWithdrawRequest";
-import { useConnectWallet, useSetChain } from "@web3-onboard/react";
+import { useConnectWallet } from "@web3-onboard/react";
 import { ChevronLeft } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import useTransitions from "@/hoc/useTransitions";
+import { useNetwork } from "@/hoc/useNetwork";
 
 interface WithdrawConfirmationProps {
   childChain: ChainData;
@@ -34,13 +35,7 @@ export default function WithdrawConfirmation({
   onSuccess,
 }: WithdrawConfirmationProps) {
   const [{ wallet }] = useConnectWallet();
-  const [
-    {
-      connectedChain, // the current chain the user's wallet is connected to
-      settingChain, // boolean indicating if the chain is in the process of being set
-    },
-    setChain, // function to call to initiate user to switch chains in their wallet
-  ] = useSetChain();
+  const [connectedChain, setChain, isSettingNetworkLoading] = useNetwork();
 
   const walletAddress = wallet?.accounts[0]?.address;
   const [understoodProcess, setUnderstoodProcess] = useState(false);
@@ -153,10 +148,10 @@ export default function WithdrawConfirmation({
           <Button
             onClick={() => setChain({ chainId: toHex(childChain.chainId) })}
             className="w-full"
-            disabled={settingChain}
+            disabled={isSettingNetworkLoading}
           >
-            {settingChain && "Switching..."}
-            {!settingChain && `Switch to ${childChain.name}`}
+            {isSettingNetworkLoading && "Switching..."}
+            {!isSettingNetworkLoading && `Switch to ${childChain.name}`}
           </Button>
         )}
 

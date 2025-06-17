@@ -1,11 +1,9 @@
-import { ETH_NATIVE_TOKEN_DATA, allChains, toHex } from "@arbitrum-connect/utils";
+import { ETH_NATIVE_TOKEN_DATA, allChainsList, toHex } from "@arbitrum-connect/utils";
 import Icons from "@/shared/icons";
 import type { AppMetadata, Chain } from "@web3-onboard/common";
 import injectedModule from "@web3-onboard/injected-wallets";
 import { Web3OnboardProvider, init } from "@web3-onboard/react";
 import { PropsWithChildren } from "react";
-
-const chainList = [...allChains.mainnet, ...allChains.testnet];
 
 const injected = injectedModule({
   filter: {
@@ -15,7 +13,7 @@ const injected = injectedModule({
 
 const wallets = [injected];
 
-const chains: Chain[] = chainList.map((chain) => {
+const chains: Chain[] = allChainsList.map((chain) => {
   const nativeTokenData = chain.bridgeUiConfig?.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
 
   return {
@@ -44,6 +42,22 @@ const web3Onboard = init({
   appMetadata,
   connect: {
     autoConnectAllPreviousWallet: true,
+    showSidebar: false,
+    removeWhereIsMyWalletWarning: true,
+  },
+  accountCenter: {
+    desktop: {
+      enabled: false,
+    },
+    mobile: {
+      enabled: false,
+    },
+  },
+  // Disable ENS resolution to avoid reverse lookup errors
+  theme: "light",
+  disableFontDownload: true,
+  notify: {
+    enabled: false,
   },
 });
 

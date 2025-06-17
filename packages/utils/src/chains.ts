@@ -13,3 +13,5 @@ export const allChains = {
   testnet: [...featuredChains.testnet, ...orbitsChains.testnet],
   mainnet: [...featuredChains.mainnet, ...orbitsChains.mainnet],
 };
+
+export const allChainsList = allChains.testnet.concat(allChains.mainnet);

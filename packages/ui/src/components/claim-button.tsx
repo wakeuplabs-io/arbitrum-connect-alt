@@ -7,7 +7,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { useConnectWallet, useSetChain } from "@web3-onboard/react";
+import { useConnectWallet } from "@web3-onboard/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { estimateGasLimitClaim, claim } from "@/lib/claim";
 import { ETH_NATIVE_TOKEN_DATA, allChains, toHex } from "@arbitrum-connect/utils";
@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { GetActivityResponse } from "@arbitrum-connect/api/src/routes/activities/get.routes";
 import { toast } from "sonner";
 import parseError from "@/lib/parseError";
+import { useNetwork } from "@/hoc/useNetwork";
 
 interface ClaimButtonProps {
   activity: GetActivityResponse;
@@ -29,14 +30,7 @@ export default function ClaimButton({ activity }: ClaimButtonProps) {
   const [{ wallet }] = useConnectWallet();
   const [isExecutingClaim, setIsExecutingClaim] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const [
-    {
-      connectedChain, // the current chain the user's wallet is connected to
-      settingChain, // boolean indicating if the chain is in the process of being set
-    },
-    setChain, // function to call to initiate user to switch chains in their wallet
-  ] = useSetChain();
+  const [connectedChain, setChain, isSettingNetworkLoading] = useNetwork();
 
   const queryClient = useQueryClient();
 
@@ -173,10 +167,10 @@ export default function ClaimButton({ activity }: ClaimButtonProps) {
             <Button
               onClick={() => setChain({ chainId: toHex(parentChain.chainId) })}
               className="w-full"
-              disabled={settingChain}
+              disabled={isSettingNetworkLoading}
             >
-              {settingChain && "Switching..."}
-              {!settingChain && `Switch to ${parentChain.name}`}
+              {isSettingNetworkLoading && "Switching..."}
+              {!isSettingNetworkLoading && `Switch to ${parentChain.name}`}
             </Button>
           )}
           {connectedChain?.id === toHex(parentChain.chainId) && (

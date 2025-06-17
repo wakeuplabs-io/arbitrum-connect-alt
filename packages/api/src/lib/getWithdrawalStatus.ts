@@ -1,16 +1,13 @@
 import {
   ChildToParentMessageStatus,
   ChildTransactionReceipt,
-  getArbitrumNetwork,
   registerCustomArbitrumNetwork,
 } from "@arbitrum/sdk";
 import { ethers } from "ethers";
 import { SECONDS_IN_MINUTE, TxStatus } from "./types.js";
-import { ChainData, allChains } from "@arbitrum-connect/utils";
+import { ChainData, allChainsList } from "@arbitrum-connect/utils";
 import getConfirmationTime from "./getConfirmationTime";
 import { providers } from "ethers";
-
-const chainList = [...allChains.mainnet, ...allChains.testnet];
 
 export enum WithdrawalStatus {
   READY_TO_CLAIM = "readyToClaim",
@@ -38,7 +35,7 @@ export async function getWithdrawalStatus(
     },
   );
 
-  const parentChain = chainList.find((c) => c.chainId === childChain.parentChainId);
+  const parentChain = allChainsList.find((c) => c.chainId === childChain.parentChainId);
 
   if (!parentChain) {
     throw new Error("Parent chain not found");
