@@ -2,16 +2,7 @@ import ConnectWallet from "@/components/connect-wallet";
 import { Button } from "@/components/ui/button";
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
 import { Bell, Home } from "lucide-react";
-import React from "react";
 import { Toaster } from "@/components/ui/sonner";
-
-const TanStackRouterDevtools = import.meta.env.PROD
-  ? () => null // Render nothing in production
-  : React.lazy(() =>
-      import("@tanstack/react-router-devtools").then((res) => ({
-        default: res.TanStackRouterDevtools,
-      })),
-    );
 
 export const Route = createRootRoute({
   component: () => (
@@ -45,7 +36,6 @@ export const Route = createRootRoute({
       <main className="flex w-full max-w-screen-xl flex-col pb-32">
         <Outlet />
       </main>
-      <TanStackRouterDevtools />
       <Toaster position="top-right" richColors />
     </div>
   ),
