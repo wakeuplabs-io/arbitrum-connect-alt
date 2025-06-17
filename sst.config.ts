@@ -120,15 +120,11 @@ export default $config({
       },
       transform: {
         cdn: {
+          comment: "SPA routing support",
           defaultRootObject: "index.html",
           customErrorResponses: [
             {
               errorCode: 404,
-              responseCode: 200,
-              responsePagePath: "/index.html",
-            },
-            {
-              errorCode: 403,
               responseCode: 200,
               responsePagePath: "/index.html",
             },
