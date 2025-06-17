@@ -24,27 +24,7 @@ import { cn } from "@/lib/utils";
 import { GetActivityResponse } from "@arbitrum-connect/api/src/routes/activities/get.routes";
 import ClaimButton from "./claim-button";
 import EmergencyButton from "./emergency-button";
-
-const statusToTitle = {
-  [ActivityStatus.INITIALIZED]: "Withdrawal Initiated",
-  [ActivityStatus.CLAIMED]: "Withdrawal Claimed",
-  [ActivityStatus.READY_TO_CLAIM]: "Ready to be Claimed",
-  [ActivityStatus.EXECUTED_BUT_FAILED]: "Withdrawal Executed But Failed",
-};
-
-const statusShorted = {
-  [ActivityStatus.INITIALIZED]: "has been initiated",
-  [ActivityStatus.CLAIMED]: "has been claimed",
-  [ActivityStatus.READY_TO_CLAIM]: "is ready to be claimed",
-  [ActivityStatus.EXECUTED_BUT_FAILED]: "has been executed but failed",
-};
-
-const statusAction = {
-  [ActivityStatus.INITIALIZED]: "Processing Withdrawal",
-  [ActivityStatus.CLAIMED]: "Claimed",
-  [ActivityStatus.READY_TO_CLAIM]: "Ready",
-  [ActivityStatus.EXECUTED_BUT_FAILED]: "Failed",
-};
+import { statusToTitle, statusShorted, statusAction } from "@/lib/statusTexts";
 
 const chainsList = [...allChains.testnet, ...allChains.mainnet];
 
@@ -124,8 +104,7 @@ export const ActivityReceipt = ({
                   <CircleAlert className="mr-2 h-5 w-5" />
                 )}
                 {timeExpired && <ClockAlert className="mr-2 h-5 w-5" />}
-                {(!timeExpired && statusAction[activity.status as keyof typeof statusAction]) ||
-                  "-"}
+                {!timeExpired && statusAction[activity.status as keyof typeof statusAction]}
                 {timeExpired && "Potential network failure"}
               </div>
               {activity.status === ActivityStatus.INITIALIZED && (

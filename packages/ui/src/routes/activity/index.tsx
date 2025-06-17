@@ -24,18 +24,12 @@ import { ActivityListSkeleton } from "@/components/activity-list-skeleton";
 import { ActivityError } from "@/components/activity-error";
 import { ActivityEmpty } from "@/components/activity-empty";
 import { ListActivityResponse } from "@arbitrum-connect/api/src/routes/activities/list.routes";
+import { statusToTitle } from "@/lib/statusTexts";
 
 const REFRESH_INTERVAL = 60000; // 1 minute
 const PAGE_SIZE = 10;
 
 const chainsList = [...allChains.mainnet, ...allChains.testnet];
-
-const statusToTitle = {
-  [ActivityStatus.INITIALIZED]: "Withdrawal Initiated",
-  [ActivityStatus.READY_TO_CLAIM]: "Ready to be Claimed",
-  [ActivityStatus.CLAIMED]: "Withdrawal Claimed",
-  [ActivityStatus.EXECUTED_BUT_FAILED]: "Withdrawal Executed But Failed",
-};
 
 async function fetchActivities(walletAddress: string, page: number = 1, limit: number = 10) {
   const client = hc<AppType>(envParsed().API_URL, {

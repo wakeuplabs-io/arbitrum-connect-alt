@@ -8,6 +8,7 @@ import { ethers } from "ethers";
 import { SECONDS_IN_MINUTE, TxStatus } from "./types.js";
 import { ChainData, allChains } from "@arbitrum-connect/utils";
 import getConfirmationTime from "./getConfirmationTime";
+import { providers } from "ethers";
 
 const chainList = [...allChains.mainnet, ...allChains.testnet];
 
@@ -47,8 +48,19 @@ export async function getWithdrawalStatus(
   const parentChainProvider = new ethers.providers.JsonRpcProvider(parentChain.rpcUrl);
 
   // Get transaction receipt
-  const txReceipt = await childChainProvider.getTransactionReceipt(childChainWithdrawTxHash);
-  if (!txReceipt) {
+
+  let txReceipt: providers.TransactionReceipt | null = null;
+
+  try {
+    txReceipt = await childChainProvider.getTransactionReceipt(childChainWithdrawTxHash);
+    if (!txReceipt) {
+      return {
+        status: WithdrawalStatus.NOT_FOUND,
+      };
+    }
+  } catch {
+    console.error("Error getting transaction receipt", childChainWithdrawTxHash);
+
     return {
       status: WithdrawalStatus.NOT_FOUND,
     };
