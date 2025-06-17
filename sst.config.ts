@@ -114,6 +114,27 @@ export default $config({
       },
       indexPage: "index.html",
       errorPage: "index.html",
+      invalidation: {
+        wait: true,
+        paths: ["/*"],
+      },
+      transform: {
+        cdn: {
+          defaultRootObject: "index.html",
+          customErrorResponses: [
+            {
+              errorCode: 404,
+              responseCode: 200,
+              responsePagePath: "/index.html",
+            },
+            {
+              errorCode: 403,
+              responseCode: 200,
+              responsePagePath: "/index.html",
+            },
+          ],
+        },
+      },
     });
     // UI <-
 
