@@ -22,7 +22,10 @@ export default function ConnectWallet({ className }: { className?: string }) {
     >
       {connecting && <LoaderCircle className="size-5 animate-spin" />}
       {!connecting && !wallet && <Wallet className="size-5" />}
-      {!connecting && wallet && <User className="size-5 group-hover:hidden" />}
+      {!connecting && wallet && !wallet.icon && <User className="size-5 group-hover:hidden" />}
+      {!connecting && wallet && wallet.icon && (
+        <img src={wallet.icon} alt={`${wallet.label} icon`} className="size-5 group-hover:hidden" />
+      )}
       {!connecting && wallet && <LogOut className="size-5 hidden group-hover:block" />}
 
       <span className="ml-2 hidden sm:block">
