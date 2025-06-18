@@ -19,8 +19,6 @@ export enum WithdrawalStatus {
 
 export interface WithdrawalStatusResult {
   status: WithdrawalStatus;
-  timeLeftInSeconds?: number;
-  formattedTimeLeft?: string;
   claimableAt?: number;
 }
 
