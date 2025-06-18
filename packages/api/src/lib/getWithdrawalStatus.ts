@@ -101,7 +101,7 @@ export async function getWithdrawalStatus(
   // Calculate remaining time
   const confirmationDate = createdAtTimestamp + confirmationTimeInSeconds;
 
-  const timeLeftInSeconds = Math.max(Math.floor((confirmationDate - Date.now()) / 1000), 0);
+  const timeLeftInSeconds = Math.max(Math.floor((confirmationDate * 1000 - Date.now()) / 1000), 0);
   const addMinutesIfNoTimeLeft = timeLeftInSeconds === 0 ? 2 * SECONDS_IN_MINUTE : 0;
 
   return {
