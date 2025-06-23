@@ -118,7 +118,7 @@ function Activity() {
                 key={activity.id}
                 to="/activity/$activityId"
                 params={{ activityId: activity.id.toString() }}
-                className="block"
+                className="block rounded-2xl focus-visible:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
               >
                 <Card className="overflow-hidden rounded-2xl hover:shadow-md transition-shadow cursor-pointer">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 gap-4">
