@@ -1,7 +1,7 @@
 import { ChainData } from "@arbitrum-connect/utils";
 import { useQuery } from "@tanstack/react-query";
-import { useConnectWallet } from "@web3-onboard/react";
 import { BigNumber, ethers } from "ethers";
+import useWallet from "./useWallet";
 
 const REFRESH_INTERVAL = 60000; // 1 minute
 
@@ -12,13 +12,12 @@ interface UseBalanceReturn {
 }
 
 export default function useBalance(chain: ChainData | null | undefined): UseBalanceReturn {
-  const [{ wallet }] = useConnectWallet();
-  const currentWallet = wallet?.accounts[0];
+  const [, walletAddress] = useWallet();
 
   const { data: balanceData, status: balanceStatus } = useQuery({
-    queryKey: ["balance", currentWallet?.address, chain?.rpcUrl],
+    queryKey: ["balance", walletAddress, chain?.rpcUrl],
     queryFn: async () => {
-      if (!currentWallet) {
+      if (!walletAddress) {
         return {
           balance: BigNumber.from(0),
           formattedBalance: "0",
@@ -26,7 +25,7 @@ export default function useBalance(chain: ChainData | null | undefined): UseBala
       }
 
       const provider = new ethers.providers.JsonRpcProvider(chain?.rpcUrl);
-      const balance = await provider.getBalance(currentWallet.address);
+      const balance = await provider.getBalance(walletAddress);
       const formatted = ethers.utils.formatEther(balance);
       const [whole, decimal] = formatted.split(".");
       const formattedBalance = decimal ? `${whole}.${decimal.slice(0, 5)}` : whole;
@@ -37,10 +36,10 @@ export default function useBalance(chain: ChainData | null | undefined): UseBala
       };
     },
     refetchInterval: REFRESH_INTERVAL,
-    enabled: !!currentWallet && !!chain,
+    enabled: !!walletAddress && !!chain,
   });
 
-  if (!chain || !currentWallet) {
+  if (!chain || !walletAddress) {
     return {
       balance: BigNumber.from(0),
       formattedBalance: "0",

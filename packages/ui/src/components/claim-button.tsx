@@ -7,7 +7,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { useConnectWallet } from "@web3-onboard/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { estimateGasLimitClaim, claim } from "@/lib/claim";
 import { ETH_NATIVE_TOKEN_DATA, allChains, toHex } from "@arbitrum-connect/utils";
@@ -21,13 +20,14 @@ import { GetActivityResponse } from "@arbitrum-connect/api/src/routes/activities
 import { toast } from "sonner";
 import parseError from "@/lib/parseError";
 import { useNetwork } from "@/hoc/useNetwork";
+import useWallet from "@/hoc/useWallet";
 
 interface ClaimButtonProps {
   activity: GetActivityResponse;
 }
 
 export default function ClaimButton({ activity }: ClaimButtonProps) {
-  const [{ wallet }] = useConnectWallet();
+  const [wallet] = useWallet();
   const [isExecutingClaim, setIsExecutingClaim] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [connectedChain, setChain, isSettingNetworkLoading] = useNetwork();

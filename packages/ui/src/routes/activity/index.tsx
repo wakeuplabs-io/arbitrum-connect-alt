@@ -9,7 +9,6 @@ import { Card } from "@/components/ui/card";
 import { Link } from "@tanstack/react-router";
 import { ActivityStatus } from "@arbitrum-connect/db";
 import {
-  Eye,
   ChevronLeft,
   ChevronRight,
   CircleX,
@@ -18,13 +17,14 @@ import {
   ClockFading,
 } from "lucide-react";
 import { useState } from "react";
-import { useConnectWallet } from "@web3-onboard/react";
 import { cn } from "@/lib/utils";
 import { ActivityListSkeleton } from "@/components/activity-list-skeleton";
 import { ActivityError } from "@/components/activity-error";
 import { ActivityEmpty } from "@/components/activity-empty";
 import { ListActivityResponse } from "@arbitrum-connect/api/src/routes/activities/list.routes";
 import { statusToTitle } from "@/lib/statusTexts";
+import UsdPrice from "@/components/usd-price";
+import useWallet from "@/hoc/useWallet";
 
 const REFRESH_INTERVAL = 60000; // 1 minute
 const PAGE_SIZE = 10;
@@ -55,18 +55,17 @@ export const Route = createFileRoute({
 });
 
 function Activity() {
-  const [{ wallet }] = useConnectWallet();
-  const currentWallet = wallet?.accounts[0].address;
+  const [, walletAddress, isConnecting] = useWallet();
   const [page, setPage] = useState(1);
 
   const { status, data, error } = useQuery({
-    queryKey: ["activities", currentWallet, page, PAGE_SIZE],
-    queryFn: () => fetchActivities(currentWallet!, page, PAGE_SIZE),
-    enabled: !!currentWallet,
+    queryKey: ["activities", walletAddress, page, PAGE_SIZE],
+    queryFn: () => fetchActivities(walletAddress!, page, PAGE_SIZE),
+    enabled: !!walletAddress,
     refetchInterval: REFRESH_INTERVAL,
   });
 
-  if (currentWallet && status === "pending") {
+  if (isConnecting || (walletAddress && status === "pending")) {
     return (
       <div className="w-full flex justify-center">
         <div className="flex flex-col max-w-3xl w-full gap-4 p-4">
@@ -76,7 +75,7 @@ function Activity() {
     );
   }
 
-  if (currentWallet && status === "error") {
+  if (walletAddress && status === "error") {
     return (
       <div className="w-full flex justify-center">
         <div className="flex flex-col max-w-3xl w-full gap-4 p-4">
@@ -86,7 +85,7 @@ function Activity() {
     );
   }
 
-  if (!data || data.items.length === 0 || !currentWallet) {
+  if (!data || data.items.length === 0 || !walletAddress) {
     return (
       <div className="w-full flex justify-center">
         <div className="flex flex-col max-w-3xl w-full gap-4 p-4">
@@ -115,61 +114,68 @@ function Activity() {
               childChain?.bridgeUiConfig?.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
 
             return (
-              <Card key={activity.id} className="overflow-hidden rounded-2xl">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 gap-4">
-                  <div className="flex flex-col flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      {activity.status === ActivityStatus.INITIALIZED && (
-                        <ClockFading className="h-4 w-4 text-slate-800" />
-                      )}
-                      {activity.status === ActivityStatus.EXECUTED_BUT_FAILED && (
-                        <CircleX className="h-4 w-4 text-red-500" />
-                      )}
-                      {activity.status === ActivityStatus.CLAIMED && (
-                        <CircleCheck className="h-4 w-4 text-green-500" />
-                      )}
-                      {activity.status === ActivityStatus.READY_TO_CLAIM && (
-                        <CircleAlert className="h-4 w-4 text-blue-500" />
-                      )}
-                      <span
-                        className={cn("font-medium", {
-                          "text-slate-800": activity.status === ActivityStatus.INITIALIZED,
-                          "text-blue-500": activity.status === ActivityStatus.READY_TO_CLAIM,
-                          "text-green-500": activity.status === ActivityStatus.CLAIMED,
-                          "text-red-500": activity.status === ActivityStatus.EXECUTED_BUT_FAILED,
-                        })}
-                      >
-                        {statusToTitle[activity.status as keyof typeof statusToTitle]}
-                      </span>
+              <Link
+                key={activity.id}
+                to="/activity/$activityId"
+                params={{ activityId: activity.id.toString() }}
+                className="block"
+              >
+                <Card className="overflow-hidden rounded-2xl hover:shadow-md transition-shadow cursor-pointer">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 gap-4">
+                    <div className="flex flex-col flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        {activity.status === ActivityStatus.INITIALIZED && (
+                          <ClockFading className="h-4 w-4 text-slate-800" />
+                        )}
+                        {activity.status === ActivityStatus.EXECUTED_BUT_FAILED && (
+                          <CircleX className="h-4 w-4 text-red-500" />
+                        )}
+                        {activity.status === ActivityStatus.CLAIMED && (
+                          <CircleCheck className="h-4 w-4 text-green-500" />
+                        )}
+                        {activity.status === ActivityStatus.READY_TO_CLAIM && (
+                          <CircleAlert className="h-4 w-4 text-blue-500" />
+                        )}
+                        <span
+                          className={cn("font-medium", {
+                            "text-slate-800": activity.status === ActivityStatus.INITIALIZED,
+                            "text-blue-500": activity.status === ActivityStatus.READY_TO_CLAIM,
+                            "text-green-500": activity.status === ActivityStatus.CLAIMED,
+                            "text-red-500": activity.status === ActivityStatus.EXECUTED_BUT_FAILED,
+                          })}
+                        >
+                          {statusToTitle[activity.status as keyof typeof statusToTitle]}
+                        </span>
+                      </div>
+                      <div className="mt-1 text-sm text-gray-500">
+                        {formatDate(new Date(activity.createdAt * 1000), "MMM d, yyyy h:mm a")}
+                      </div>
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className="text-sm text-gray-600">
+                          {childChain?.name || "Unknown Chain"}
+                        </span>
+                        <span className="text-sm text-gray-400">→</span>
+                        <span className="text-sm text-gray-600">
+                          {parentChain?.name || "Unknown Chain"}
+                        </span>
+                      </div>
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className="text-sm font-medium">
+                          {activity.withdrawAmount} {nativeTokenData.symbol}
+                        </span>
+                        <UsdPrice
+                          ethAmount={activity.withdrawAmount}
+                          isLoading={false}
+                          disabled={nativeTokenData.symbol !== ETH_NATIVE_TOKEN_DATA.symbol}
+                          className="text-xs font-extralight"
+                          addParenthesis
+                        />
+                      </div>
                     </div>
-                    <div className="mt-1 text-sm text-gray-500">
-                      {formatDate(new Date(activity.createdAt * 1000), "MMM d, yyyy h:mm a")}
-                    </div>
-                    <div className="mt-2 flex items-center gap-2">
-                      <span className="text-sm text-gray-600">
-                        {childChain?.name || "Unknown Chain"}
-                      </span>
-                      <span className="text-sm text-gray-400">→</span>
-                      <span className="text-sm text-gray-600">
-                        {parentChain?.name || "Unknown Chain"}
-                      </span>
-                      <span className="text-sm text-gray-400">•</span>
-                      <span className="text-sm font-medium">
-                        {activity.withdrawAmount} {nativeTokenData.symbol}
-                      </span>
-                    </div>
+                    <ChevronRight className="h-5 w-5 text-gray-400 shrink-0" />
                   </div>
-                  <Button variant="outline" size="sm" className="shrink-0" asChild>
-                    <Link
-                      to="/activity/$activityId"
-                      params={{ activityId: activity.id.toString() }}
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Details
-                    </Link>
-                  </Button>
-                </div>
-              </Card>
+                </Card>
+              </Link>
             );
           })}
         </div>

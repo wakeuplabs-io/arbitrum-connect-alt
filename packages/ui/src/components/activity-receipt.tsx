@@ -25,6 +25,7 @@ import { GetActivityResponse } from "@arbitrum-connect/api/src/routes/activities
 import ClaimButton from "./claim-button";
 import EmergencyButton from "./emergency-button";
 import { statusToTitle, statusShorted, statusAction } from "@/lib/statusTexts";
+import UsdPrice from "./usd-price";
 
 const chainsList = [...allChains.testnet, ...allChains.mainnet];
 
@@ -166,7 +167,18 @@ export const ActivityReceipt = ({
                 />
                 Amount
               </div>
-              {activity.withdrawAmount} {nativeTokenData.symbol}
+              <div className="flex items-center gap-2">
+                <UsdPrice
+                  ethAmount={activity.withdrawAmount}
+                  isLoading={false}
+                  disabled={nativeTokenData.symbol !== ETH_NATIVE_TOKEN_DATA.symbol}
+                  className="text-xs font-extralight"
+                  addParenthesis
+                />
+                <span>
+                  {activity.withdrawAmount} {nativeTokenData.symbol}
+                </span>
+              </div>
             </div>
             <div className="bg-gray-100 text-center text-sm text-slate-600 px-4 py-2">
               Have questions about this process?{" "}

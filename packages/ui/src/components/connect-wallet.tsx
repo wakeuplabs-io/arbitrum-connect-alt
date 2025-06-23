@@ -1,18 +1,16 @@
 import { Button } from "@/components/ui/button";
+import useWallet from "@/hoc/useWallet";
 import shortenAddress from "@/lib/shortenAddress";
-import { useConnectWallet } from "@web3-onboard/react";
 import { clsx } from "clsx";
 import { LoaderCircle, LogOut, User, Wallet } from "lucide-react";
 
 export default function ConnectWallet({ className }: { className?: string }) {
-  const [{ wallet, connecting }, connect, disconnect] = useConnectWallet();
-
-  const walletAddress = wallet?.accounts[0]?.address;
+  const [wallet, walletAddress, isConnecting, isInitializing, connect, disconnect] = useWallet();
 
   return (
     <Button
       variant={wallet ? "outline" : "default"}
-      disabled={connecting}
+      disabled={isConnecting}
       onClick={() => (wallet ? disconnect(wallet) : connect())}
       className={clsx(
         "group relative",
@@ -20,18 +18,18 @@ export default function ConnectWallet({ className }: { className?: string }) {
         className,
       )}
     >
-      {connecting && <LoaderCircle className="size-5 animate-spin" />}
-      {!connecting && !wallet && <Wallet className="size-5" />}
-      {!connecting && wallet && !wallet.icon && <User className="size-5 group-hover:hidden" />}
-      {!connecting && wallet && wallet.icon && (
+      {isConnecting && <LoaderCircle className="size-5 animate-spin" />}
+      {!isConnecting && !wallet && <Wallet className="size-5" />}
+      {!isConnecting && wallet && !wallet.icon && <User className="size-5 group-hover:hidden" />}
+      {!isConnecting && wallet && wallet.icon && (
         <img src={wallet.icon} alt={`${wallet.label} icon`} className="size-5 group-hover:hidden" />
       )}
-      {!connecting && wallet && <LogOut className="size-5 hidden group-hover:block" />}
+      {!isConnecting && wallet && <LogOut className="size-5 hidden group-hover:block" />}
 
       <span className="ml-2 hidden sm:block">
-        {connecting && "Connecting..."}
-        {!connecting && !wallet && "Connect"}
-        {!connecting && wallet && (
+        {isConnecting && (isInitializing ? "Initializing..." : "Connecting...")}
+        {!isConnecting && !wallet && "Connect"}
+        {!isConnecting && wallet && (
           <>
             <span className="block font-mono group-hover:hidden">
               {shortenAddress(walletAddress)}

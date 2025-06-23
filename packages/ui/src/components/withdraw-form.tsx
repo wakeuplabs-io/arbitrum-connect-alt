@@ -8,12 +8,13 @@ import useWithdrawRequest from "@/hoc/useWithdrawRequest";
 import getDecimalCount from "@/lib/getDecimalCount";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useConnectWallet } from "@web3-onboard/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import ConnectWallet from "./connect-wallet";
 import WithdrawDetails from "./withdraw-detalis";
+import UsdPrice from "./usd-price";
+import useWallet from "@/hoc/useWallet";
 
 export default function WithdrawForm({
   childChain,
@@ -28,8 +29,7 @@ export default function WithdrawForm({
 }) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isFocused, setIsFocused] = useState(false);
-  const [{ wallet }] = useConnectWallet();
-  const walletAddress = wallet?.accounts[0]?.address;
+  const [, walletAddress] = useWallet();
 
   const formSchema = z.object({
     amount: z.coerce
@@ -94,7 +94,7 @@ export default function WithdrawForm({
                       {...field}
                       value={field.value === undefined ? "" : field.value}
                       placeholder={isFocused ? "" : "0"}
-                      className="p-0 h-24 border-none bg-transparent text-center text-8xl font-medium tracking-tighter focus-visible:ring-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                      className="p-0 h-24 border-none bg-transparent text-center text-8xl font-medium tracking-tighter focus-visible:ring-0 focus-visible:ring-offset-0"
                       type="tel"
                       autoComplete="off"
                       autoFocus
@@ -102,12 +102,20 @@ export default function WithdrawForm({
                       onBlur={() => setIsFocused(false)}
                     />
                   </FormControl>
-                  <div className="min-h-4">
+                  <div className="min-h-10">
                     <FormMessage className="text-center whitespace-nowrap text-xs">
                       {!errorMessage && (
-                        <span className="text-xs font-extralight text-muted-foreground">
-                          Amount to withdraw
-                        </span>
+                        <div className="flex flex-col gap-2">
+                          <span className="text-xs font-extralight text-muted-foreground">
+                            Amount to withdraw
+                          </span>
+                          <UsdPrice
+                            ethAmount={field.value === undefined ? "" : field.value}
+                            isLoading={false}
+                            disabled={nativeTokenData.symbol !== ETH_NATIVE_TOKEN_DATA.symbol}
+                            className="text-xs font-extralight text-muted-foreground"
+                          />
+                        </div>
                       )}
                       {errorMessage && (
                         <span className="text-xs font-extralight text-destructive">
@@ -132,7 +140,16 @@ export default function WithdrawForm({
               <img src={nativeTokenData.logoUrl} alt={nativeTokenData.name} className="size-6" />
               <div className="flex flex-col">
                 <span className="font-medium">{nativeTokenData.symbol}</span>
-                <span className="text-sm text-muted-foreground">Balance {formattedBalance}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Balance {formattedBalance}</span>
+                  <UsdPrice
+                    ethAmount={formattedBalance}
+                    isLoading={isBalanceLoading}
+                    disabled={nativeTokenData.symbol !== ETH_NATIVE_TOKEN_DATA.symbol}
+                    className="text-xs font-extralight"
+                    addParenthesis
+                  />
+                </div>
               </div>
             </div>
             <Button

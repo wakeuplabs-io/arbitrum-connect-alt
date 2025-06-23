@@ -1,14 +1,13 @@
 import { ChainData } from "@arbitrum-connect/utils";
 import { createWithdrawalRequest, estimateGasLimitWithdrawalRequest } from "@/lib/withdraw";
 import { useQuery } from "@tanstack/react-query";
-import { useConnectWallet } from "@web3-onboard/react";
 import { ethers } from "ethers";
+import useWallet from "./useWallet";
 
 const REFRESH_INTERVAL = 60000; // 1 minute
 
 export default function useWithdrawRequest(childChain: ChainData, amount: string) {
-  const [{ wallet }] = useConnectWallet();
-  const walletAddress = wallet?.accounts[0]?.address;
+  const [, walletAddress] = useWallet();
 
   // Query for withdrawal request
   const {

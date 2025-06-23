@@ -10,12 +10,14 @@ import { useState } from "react";
 import WithdrawDetails from "./withdraw-detalis";
 import type { AppType } from "@arbitrum-connect/api";
 import useWithdrawRequest from "@/hoc/useWithdrawRequest";
-import { useConnectWallet } from "@web3-onboard/react";
 import { ChevronLeft } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import useTransitions from "@/hoc/useTransitions";
 import { useNetwork } from "@/hoc/useNetwork";
+import UsdPrice from "./usd-price";
+import useWallet from "@/hoc/useWallet";
+import ConnectWallet from "./connect-wallet";
 
 interface WithdrawConfirmationProps {
   childChain: ChainData;
@@ -34,10 +36,9 @@ export default function WithdrawConfirmation({
   onBack,
   onSuccess,
 }: WithdrawConfirmationProps) {
-  const [{ wallet }] = useConnectWallet();
+  const [wallet, walletAddress] = useWallet();
   const [connectedChain, setChain, isSettingNetworkLoading] = useNetwork();
 
-  const walletAddress = wallet?.accounts[0]?.address;
   const [understoodProcess, setUnderstoodProcess] = useState(false);
   const [understoodTimes, setUnderstoodTimes] = useState(false);
 
@@ -91,7 +92,15 @@ export default function WithdrawConfirmation({
         <h1 className="text-lg font-semibold">Review and Initiate Withdraw</h1>
       </div>
       <div className="overflow-hidden w-full rounded-3xl border bg-card p-6 text-center">
-        <span className="text-xs font-extralight text-muted-foreground">Amount to withdraw</span>
+        <div className="flex gap-2 items-center justify-center">
+          <span className="text-xs font-extralight text-muted-foreground">Amount to withdraw</span>
+          <UsdPrice
+            ethAmount={amount}
+            isLoading={false}
+            disabled={nativeTokenData.symbol !== ETH_NATIVE_TOKEN_DATA.symbol}
+            className="text-xs font-extralight text-muted-foreground"
+          />
+        </div>
         <div className="flex items-center justify-center gap-2 pt-1">
           <img src={nativeTokenData.logoUrl} alt={nativeTokenData.name} className="size-8" />
           <span className="text-5xl font-medium tracking-tighter">
@@ -144,7 +153,9 @@ export default function WithdrawConfirmation({
       </div>
 
       <div className="pt-4 flex flex-col gap-4">
-        {connectedChain?.id !== toHex(childChain.chainId) && (
+        {!wallet && <ConnectWallet />}
+
+        {wallet && connectedChain?.id !== toHex(childChain.chainId) && (
           <Button
             onClick={() => setChain({ chainId: toHex(childChain.chainId) })}
             className="w-full"
@@ -155,7 +166,7 @@ export default function WithdrawConfirmation({
           </Button>
         )}
 
-        {connectedChain?.id === toHex(childChain.chainId) && (
+        {wallet && connectedChain?.id === toHex(childChain.chainId) && (
           <Button
             onClick={handleConfirm}
             className="w-full"
