@@ -8,6 +8,7 @@
 import configureOpenAPI from "./lib/configure-open-api";
 import createApp from "./lib/create-app";
 import activities from "./routes/activities/activities.index";
+import prices from "./routes/prices/prices.index";
 
 /**
  * Main Hono application instance
@@ -16,7 +17,7 @@ import activities from "./routes/activities/activities.index";
  */
 const app = createApp();
 
-const apiRoutes = app.route("/api", activities);
+const apiRoutes = app.route("/api", activities).route("/api", prices);
 
 /**
  * Configures OpenAPI/Swagger documentation for the API

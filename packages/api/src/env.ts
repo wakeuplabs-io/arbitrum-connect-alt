@@ -16,6 +16,11 @@ const EnvSchema = z.object({
     .enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"])
     .default("error"),
   UI_URL: z.string().trim().default("http://localhost:3000"),
+  PRICES_API_URL: z
+    .string()
+    .trim()
+    .default("https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"),
+  PRICES_CACHE_EXPIRATION_MINUTES: z.coerce.number().default(5),
 });
 
 export type env = z.infer<typeof EnvSchema>;
