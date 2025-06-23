@@ -1,7 +1,7 @@
 import ConnectWallet from "@/components/connect-wallet";
 import { Button } from "@/components/ui/button";
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
-import { Bell, Home } from "lucide-react";
+import { Bell, Home, Heart } from "lucide-react";
 import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createRootRoute({
@@ -36,6 +36,26 @@ export const Route = createRootRoute({
       <main className="flex w-full max-w-screen-xl flex-col pb-32">
         <Outlet />
       </main>
+
+      {/* Footer */}
+      <footer className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-t border-border">
+        <div className="flex justify-center items-center py-3 px-6">
+          <p className="text-sm text-muted-foreground flex items-center gap-1">
+            Made with
+            <Heart className="size-4 text-red-500 fill-current" />
+            by{" "}
+            <a
+              href="https://www.wakeuplabs.io/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-foreground hover:text-primary transition-colors underline underline-offset-4 decoration-1 hover:decoration-2"
+            >
+              WakeUp Labs
+            </a>
+          </p>
+        </div>
+      </footer>
+
       <Toaster position="top-right" richColors />
     </div>
   ),

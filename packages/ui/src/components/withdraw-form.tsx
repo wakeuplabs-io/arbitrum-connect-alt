@@ -27,6 +27,7 @@ export default function WithdrawForm({
   onWithdrawRequest: (amount: string) => void;
 }) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isFocused, setIsFocused] = useState(false);
   const [{ wallet }] = useConnectWallet();
   const walletAddress = wallet?.accounts[0]?.address;
 
@@ -92,11 +93,13 @@ export default function WithdrawForm({
                     <Input
                       {...field}
                       value={field.value === undefined ? "" : field.value}
-                      placeholder="0"
+                      placeholder={isFocused ? "" : "0"}
                       className="p-0 h-24 border-none bg-transparent text-center text-8xl font-medium tracking-tighter focus-visible:ring-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                       type="tel"
                       autoComplete="off"
                       autoFocus
+                      onFocus={() => setIsFocused(true)}
+                      onBlur={() => setIsFocused(false)}
                     />
                   </FormControl>
                   <div className="min-h-4">
