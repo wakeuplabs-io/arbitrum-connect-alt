@@ -7,7 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 export const Route = createRootRoute({
   component: () => (
     <div className="w-screen h-screen flex flex-col items-center">
-      {/* Fixed Header */}
+      {/* Header */}
       <header className="fixed top-0 left-0 right-0 bg-background/40 backdrop-blur-sm z-50">
         <div className="flex w-full max-w-screen-xl gap-6 items-center p-6 mx-auto">
           <Link to="/" className="min-w-8">
@@ -40,6 +40,7 @@ export const Route = createRootRoute({
         </div>
       </header>
 
+      {/* Main content */}
       <main className="flex w-full max-w-screen-xl flex-col pb-32 pt-24">
         <Outlet />
       </main>
