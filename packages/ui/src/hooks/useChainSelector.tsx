@@ -1,8 +1,6 @@
-import { allChains, featuredChains, orbitsChains } from "@arbitrum-connect/utils";
+import { allChainsList, featuredChains, orbitsChains } from "@arbitrum-connect/utils";
 import debounce from "lodash/debounce";
 import { useCallback, useMemo, useState } from "react";
-
-const chainsList = [...allChains.mainnet, ...allChains.testnet];
 
 export default function useChainSelector() {
   const [showTestnets, setShowTestnets] = useState(false);
@@ -14,11 +12,11 @@ export default function useChainSelector() {
       showTestnets
         ? featuredChains.testnet
             .filter((c) => c.parentChainId > 0)
-            .filter((c) => chainsList.find((cl) => cl.chainId === c.parentChainId))
+            .filter((c) => allChainsList.find((cl) => cl.chainId === c.parentChainId))
             .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
         : featuredChains.mainnet
             .filter((c) => c.parentChainId > 0)
-            .filter((c) => chainsList.find((cl) => cl.chainId === c.parentChainId))
+            .filter((c) => allChainsList.find((cl) => cl.chainId === c.parentChainId))
             .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())),
     [showTestnets],
   );
@@ -28,11 +26,11 @@ export default function useChainSelector() {
       showTestnets
         ? orbitsChains.testnet
             .filter((c) => c.parentChainId > 0)
-            .filter((c) => chainsList.find((cl) => cl.chainId === c.parentChainId))
+            .filter((c) => allChainsList.find((cl) => cl.chainId === c.parentChainId))
             .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
         : orbitsChains.mainnet
             .filter((c) => c.parentChainId > 0)
-            .filter((c) => chainsList.find((cl) => cl.chainId === c.parentChainId))
+            .filter((c) => allChainsList.find((cl) => cl.chainId === c.parentChainId))
             .sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase())),
     [showTestnets],
   );
@@ -75,7 +73,7 @@ export default function useChainSelector() {
   );
 
   const parentChain = useMemo(
-    () => chainsList.find((chain) => chain.chainId === childChain.parentChainId),
+    () => allChainsList.find((chain) => chain.chainId === childChain.parentChainId),
     [childChain.parentChainId],
   );
 

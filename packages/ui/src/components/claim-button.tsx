@@ -8,8 +8,8 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { estimateGasLimitClaim, claim } from "@/lib/claim";
-import { ETH_NATIVE_TOKEN_DATA, allChains, toHex } from "@arbitrum-connect/utils";
+import { claim } from "@/lib/claim";
+import { ETH_NATIVE_TOKEN_DATA, allChainsList, toHex } from "@arbitrum-connect/utils";
 import { useState } from "react";
 import { X } from "lucide-react";
 import useBalance from "@/hooks/useBalance";
@@ -35,13 +35,9 @@ export default function ClaimButton({ activity }: ClaimButtonProps) {
 
   const queryClient = useQueryClient();
 
-  const childChain = allChains.mainnet
-    .concat(allChains.testnet)
-    .find((c) => c.chainId === activity.childChainId);
+  const childChain = allChainsList.find((c) => c.chainId === activity.childChainId);
   const parentChain = childChain
-    ? allChains.mainnet
-        .concat(allChains.testnet)
-        .find((c) => c.chainId === childChain.parentChainId)
+    ? allChainsList.find((c) => c.chainId === childChain.parentChainId)
     : null;
 
   const { formattedBalance, balance, isLoading: isBalanceLoading } = useBalance(parentChain);

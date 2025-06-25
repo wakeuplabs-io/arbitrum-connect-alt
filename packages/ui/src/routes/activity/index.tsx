@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { allChains, ETH_NATIVE_TOKEN_DATA } from "@arbitrum-connect/utils";
+import { allChainsList, ETH_NATIVE_TOKEN_DATA } from "@arbitrum-connect/utils";
 import { formatDate } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -22,8 +22,6 @@ import { statusToTitle } from "@/lib/statusTexts";
 import UsdPrice from "@/components/usd-price";
 import useWallet from "@/hooks/useWallet";
 import createGetActivitiesQueryOptions from "@/query-options/createGetActivitiesQueryOptions";
-
-const chainsList = [...allChains.mainnet, ...allChains.testnet];
 
 export const Route = createFileRoute({
   component: Activity,
@@ -78,8 +76,8 @@ function Activity() {
         </div>
         <div className="space-y-4 w-full">
           {data.items.map((activity) => {
-            const childChain = chainsList.find((c) => c.chainId === activity.childChainId);
-            const parentChain = chainsList.find((c) => c.chainId === childChain?.parentChainId);
+            const childChain = allChainsList.find((c) => c.chainId === activity.childChainId);
+            const parentChain = allChainsList.find((c) => c.chainId === childChain?.parentChainId);
             const nativeTokenData =
               childChain?.bridgeUiConfig?.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
 

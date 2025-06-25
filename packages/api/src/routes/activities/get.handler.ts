@@ -4,7 +4,7 @@ import { z } from "@hono/zod-openapi";
 import { eq } from "drizzle-orm";
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { allChainsList } from "@arbitrum-connect/utils";
-import { AppRouteHandler, TxStatus } from "../../lib/types";
+import { AppRouteHandler } from "../../lib/types";
 import { GetActivityRoute, getActivityRoute } from "./get.routes";
 import { getWithdrawalStatus, WithdrawalStatus } from "../../lib/getWithdrawalStatus";
 
