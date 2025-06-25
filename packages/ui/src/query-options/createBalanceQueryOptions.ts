@@ -22,6 +22,7 @@ export default function createBalanceQueryOptions(
       };
     },
     refetchInterval: minutesToMilliseconds(1),
+    staleTime: minutesToMilliseconds(1),
     enabled: !!walletAddress && !!chain,
   });
 }
