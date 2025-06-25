@@ -9,7 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
-import { ChainSelectorProps } from "@/hoc/useChainSelector";
+import { ChainSelectorProps } from "@/hooks/useChainSelector";
 import { ChevronDown, CircleArrowRight, Info, Search, X } from "lucide-react";
 
 export default function ChainSelector({

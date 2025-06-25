@@ -9,14 +9,14 @@ import { hc } from "hono/client";
 import { useState } from "react";
 import WithdrawDetails from "./withdraw-detalis";
 import type { AppType } from "@arbitrum-connect/api";
-import useWithdrawRequest from "@/hoc/useWithdrawRequest";
+import useWithdrawRequest from "@/hooks/useWithdrawRequest";
 import { ChevronLeft } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import useTransitions from "@/hoc/useTransitions";
-import { useNetwork } from "@/hoc/useNetwork";
+import useTransitions from "@/hooks/useTransitions";
+import { useNetwork } from "@/hooks/useNetwork";
 import UsdPrice from "./usd-price";
-import useWallet from "@/hoc/useWallet";
+import useWallet from "@/hooks/useWallet";
 import ConnectWallet from "./connect-wallet";
 
 interface WithdrawConfirmationProps {

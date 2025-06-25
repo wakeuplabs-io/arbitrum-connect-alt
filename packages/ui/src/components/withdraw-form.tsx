@@ -4,7 +4,7 @@ import { ChainData, ETH_NATIVE_TOKEN_DATA } from "@arbitrum-connect/utils";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import useWithdrawRequest from "@/hoc/useWithdrawRequest";
+import useWithdrawRequest from "@/hooks/useWithdrawRequest";
 import getDecimalCount from "@/lib/getDecimalCount";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,7 +14,7 @@ import * as z from "zod";
 import ConnectWallet from "./connect-wallet";
 import WithdrawDetails from "./withdraw-detalis";
 import UsdPrice from "./usd-price";
-import useWallet from "@/hoc/useWallet";
+import useWallet from "@/hooks/useWallet";
 
 export default function WithdrawForm({
   childChain,

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import useWallet from "@/hoc/useWallet";
+import useWallet from "@/hooks/useWallet";
 import shortenAddress from "@/lib/shortenAddress";
 import { clsx } from "clsx";
 import { LoaderCircle, LogOut, User, Wallet } from "lucide-react";

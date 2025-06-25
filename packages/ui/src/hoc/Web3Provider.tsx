@@ -1,5 +1,5 @@
 import { ETH_NATIVE_TOKEN_DATA, allChainsList, toHex } from "@arbitrum-connect/utils";
-import Icons from "@/shared/icons";
+import appIcon from "@/hoc/app-icon";
 import type { AppMetadata, Chain } from "@web3-onboard/common";
 import injectedModule from "@web3-onboard/injected-wallets";
 import { Web3OnboardProvider, init } from "@web3-onboard/react";
@@ -27,7 +27,7 @@ const chains: Chain[] = allChainsList.map((chain) => {
 
 const appMetadata: AppMetadata = {
   name: "Arbitrum Connect",
-  icon: Icons.LogoString(),
+  icon: appIcon,
   description:
     "Arbitrum Connect is a dApp that makes it easy to move funds from any chain in the Arbitrum ecosystem back to the parent chain.",
   recommendedInjectedWallets: [

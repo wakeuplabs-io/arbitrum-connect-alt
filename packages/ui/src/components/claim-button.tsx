@@ -12,15 +12,15 @@ import { estimateGasLimitClaim, claim } from "@/lib/claim";
 import { ETH_NATIVE_TOKEN_DATA, allChains, toHex } from "@arbitrum-connect/utils";
 import { useState } from "react";
 import { X } from "lucide-react";
-import useBalance from "@/hoc/useBalance";
+import useBalance from "@/hooks/useBalance";
 import getEthersProvider from "@/lib/getEthersProvider";
-import useLoaingDots from "@/hoc/useLoadingDots";
+import useLoaingDots from "@/hooks/useLoadingDots";
 import { cn } from "@/lib/utils";
 import { GetActivityResponse } from "@arbitrum-connect/api/src/routes/activities/get.routes";
 import { toast } from "sonner";
 import parseError from "@/lib/parseError";
-import { useNetwork } from "@/hoc/useNetwork";
-import useWallet from "@/hoc/useWallet";
+import { useNetwork } from "@/hooks/useNetwork";
+import useWallet from "@/hooks/useWallet";
 
 interface ClaimButtonProps {
   activity: GetActivityResponse;

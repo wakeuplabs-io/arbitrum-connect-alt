@@ -1,7 +1,7 @@
 import { ChainData } from "@arbitrum-connect/utils";
 import { useQuery } from "@tanstack/react-query";
 import { BigNumber, ethers } from "ethers";
-import useWallet from "./useWallet";
+import useWallet from "@/hooks/useWallet";
 
 const REFRESH_INTERVAL = 60000; // 1 minute
 

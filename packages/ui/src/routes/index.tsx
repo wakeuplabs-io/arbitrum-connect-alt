@@ -1,9 +1,9 @@
 import ChainSelector from "@/components/chain-selector";
 import WithdrawConfirmation from "@/components/withdraw-confirmation";
 import WithdrawForm from "@/components/withdraw-form";
-import useBalance from "@/hoc/useBalance";
-import useChainSelector from "@/hoc/useChainSelector";
-import useLoaingDots from "@/hoc/useLoadingDots";
+import useBalance from "@/hooks/useBalance";
+import useChainSelector from "@/hooks/useChainSelector";
+import useLoaingDots from "@/hooks/useLoadingDots";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 

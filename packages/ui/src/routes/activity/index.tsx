@@ -24,7 +24,7 @@ import { ActivityEmpty } from "@/components/activity-empty";
 import { ListActivityResponse } from "@arbitrum-connect/api/src/routes/activities/list.routes";
 import { statusToTitle } from "@/lib/statusTexts";
 import UsdPrice from "@/components/usd-price";
-import useWallet from "@/hoc/useWallet";
+import useWallet from "@/hooks/useWallet";
 
 const REFRESH_INTERVAL = 60000; // 1 minute
 const PAGE_SIZE = 10;

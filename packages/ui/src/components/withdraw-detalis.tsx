@@ -1,9 +1,9 @@
 import { ChainData, ETH_NATIVE_TOKEN_DATA } from "@arbitrum-connect/utils";
-import useLoaingDots from "@/hoc/useLoadingDots";
+import useLoaingDots from "@/hooks/useLoadingDots";
 import shortenAddress from "@/lib/shortenAddress";
 import { Fuel, Wallet } from "lucide-react";
 import UsdPrice from "./usd-price";
-import useWallet from "@/hoc/useWallet";
+import useWallet from "@/hooks/useWallet";
 
 export default function WithdrawDetails({
   childChain,
