@@ -17,7 +17,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Link } from "@tanstack/react-router";
 import { ActivityStatus } from "@arbitrum-connect/db";
-import { allChainsList, ETH_NATIVE_TOKEN_DATA } from "@arbitrum-connect/utils";
+import { ETH_NATIVE_TOKEN_DATA } from "@arbitrum-connect/utils";
 import getTimeRemaining from "@/lib/getTimeRemaining";
 import { formatDate } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -26,6 +26,8 @@ import ClaimButton from "./claim-button";
 import EmergencyButton from "./emergency-button";
 import { statusToTitle, statusShorted, statusAction } from "@/lib/statusTexts";
 import UsdPrice from "./usd-price";
+import { useQuery } from "@tanstack/react-query";
+import createGetChainQueryOptions from "@/query-options/createGetChainQueryOptions";
 
 const GRACE_PERIOD_MINUTES = 15;
 
@@ -36,8 +38,8 @@ export const ActivityReceipt = ({
   activity: GetActivityResponse;
   isFetching: boolean;
 }) => {
-  const childChain = allChainsList.find((c) => c.chainId === activity.childChainId);
-  const parentChain = allChainsList.find((c) => c.chainId === childChain?.parentChainId);
+  const { data: childChain } = useQuery(createGetChainQueryOptions(activity.childChainId));
+  const { data: parentChain } = useQuery(createGetChainQueryOptions(childChain?.parentChainId));
 
   if (!childChain || !parentChain) {
     return null;
@@ -194,7 +196,7 @@ export const ActivityReceipt = ({
         <CardFooter className="flex flex-col gap-6 p-0">
           <section className="w-full flex flex-col gap-3">
             {activity.status === ActivityStatus.READY_TO_CLAIM && (
-              <ClaimButton activity={activity} />
+              <ClaimButton activity={activity} isDisabled={isFetching} />
             )}
             {timeExpired && <EmergencyButton />}
           </section>

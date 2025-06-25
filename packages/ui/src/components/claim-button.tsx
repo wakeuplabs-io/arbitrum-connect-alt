@@ -9,7 +9,7 @@ import {
 } from "./ui/dialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { claim } from "@/lib/claim";
-import { ETH_NATIVE_TOKEN_DATA, allChainsList, toHex } from "@arbitrum-connect/utils";
+import { ETH_NATIVE_TOKEN_DATA, toHex } from "@arbitrum-connect/utils";
 import { useState } from "react";
 import { X } from "lucide-react";
 import useBalance from "@/hooks/useBalance";
@@ -18,27 +18,28 @@ import useLoaingDots from "@/hooks/useLoadingDots";
 import { cn } from "@/lib/utils";
 import { GetActivityResponse } from "@arbitrum-connect/api/src/routes/activities/get.routes";
 import { toast } from "sonner";
-import parseError from "@/lib/parseError";
 import { useNetwork } from "@/hooks/useNetwork";
 import useWallet from "@/hooks/useWallet";
 import createClaimGasEstimationQueryOptions from "@/query-options/createClaimGasEstimationQueryOptions";
+import createGetChainQueryOptions from "@/query-options/createGetChainQueryOptions";
+import createGetActivityQueryOptions from "@/query-options/createGetActivityQueryOptions";
+import useTransitions from "@/hooks/useTransitions";
 
 interface ClaimButtonProps {
   activity: GetActivityResponse;
+  isDisabled: boolean;
 }
 
-export default function ClaimButton({ activity }: ClaimButtonProps) {
+export default function ClaimButton({ activity, isDisabled }: ClaimButtonProps) {
   const [wallet] = useWallet();
-  const [isExecutingClaim, setIsExecutingClaim] = useState(false);
+  const [isClaiming, startClaiming] = useTransitions();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [connectedChain, setChain, isSettingNetworkLoading] = useNetwork();
 
   const queryClient = useQueryClient();
 
-  const childChain = allChainsList.find((c) => c.chainId === activity.childChainId);
-  const parentChain = childChain
-    ? allChainsList.find((c) => c.chainId === childChain.parentChainId)
-    : null;
+  const { data: childChain } = useQuery(createGetChainQueryOptions(activity.childChainId));
+  const { data: parentChain } = useQuery(createGetChainQueryOptions(childChain?.parentChainId));
 
   const { formattedBalance, balance, isLoading: isBalanceLoading } = useBalance(parentChain);
 
@@ -56,8 +57,7 @@ export default function ClaimButton({ activity }: ClaimButtonProps) {
   const handleClaim = async () => {
     if (!wallet || !childChain || !parentChain || !gasEstimation) return;
 
-    try {
-      setIsExecutingClaim(true);
+    await startClaiming(async () => {
       const provider = getEthersProvider(wallet);
       if (!provider) throw new Error("No provider");
 
@@ -70,19 +70,14 @@ export default function ClaimButton({ activity }: ClaimButtonProps) {
         gasEstimation,
       );
 
+      queryClient.invalidateQueries(createGetActivityQueryOptions(activity.id));
+
       toast.success("Claim successful", {
         description: "Your funds have been claimed successfully",
       });
-    } catch (error) {
-      console.error("Error claiming:", error);
-      toast.error("Error claiming", {
-        description: parseError(error),
-      });
-    } finally {
-      setIsDialogOpen(false);
-      setIsExecutingClaim(false);
-      queryClient.invalidateQueries({ queryKey: ["activity", activity.id] });
-    }
+    });
+
+    setIsDialogOpen(false);
   };
 
   if (!childChain || !parentChain) return null;
@@ -99,7 +94,11 @@ export default function ClaimButton({ activity }: ClaimButtonProps) {
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button size="lg" className="w-full bg-blue-500 text-white hover:bg-blue-400">
+        <Button
+          size="lg"
+          className="w-full bg-blue-500 text-white hover:bg-blue-400"
+          disabled={isDisabled}
+        >
           Claim
         </Button>
       </DialogTrigger>
@@ -169,7 +168,7 @@ export default function ClaimButton({ activity }: ClaimButtonProps) {
             <Button
               onClick={handleClaim}
               disabled={
-                isExecutingClaim ||
+                isClaiming ||
                 gasEstimationStatus === "pending" ||
                 isBalanceLoading ||
                 insufficientFunds
@@ -179,8 +178,8 @@ export default function ClaimButton({ activity }: ClaimButtonProps) {
                 insufficientFunds && "bg-gray-300 text-gray-500 cursor-not-allowed",
               )}
             >
-              {isExecutingClaim && "Claiming..."}
-              {!insufficientFunds && !isExecutingClaim && "Confirm Claim"}
+              {isClaiming && "Claiming..."}
+              {!insufficientFunds && !isClaiming && "Confirm Claim"}
               {insufficientFunds && "Insufficient funds"}
             </Button>
           )}

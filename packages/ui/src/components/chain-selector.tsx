@@ -10,12 +10,13 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { ChainSelectorProps } from "@/hooks/useChainSelector";
+import createGetChainQueryOptions from "@/query-options/createGetChainQueryOptions";
+import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, CircleArrowRight, Info, Search, X } from "lucide-react";
 
 export default function ChainSelector({
   childChain,
   setChildChain,
-  parentChain,
   isOpen,
   setIsOpen,
   search,
@@ -25,6 +26,8 @@ export default function ChainSelector({
   filteredFeaturedChains,
   filteredOrbitChains,
 }: ChainSelectorProps) {
+  const { data: parentChain } = useQuery(createGetChainQueryOptions(childChain.parentChainId));
+
   return (
     <section className="flex items-center gap-4 rounded-2xl border bg-card p-4 w-full flex-wrap">
       <Dialog open={isOpen} onOpenChange={setIsOpen}>

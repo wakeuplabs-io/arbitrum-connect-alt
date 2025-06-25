@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { allChainsList, ETH_NATIVE_TOKEN_DATA } from "@arbitrum-connect/utils";
+import { ETH_NATIVE_TOKEN_DATA } from "@arbitrum-connect/utils";
 import { formatDate } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -22,6 +22,8 @@ import { statusToTitle } from "@/lib/statusTexts";
 import UsdPrice from "@/components/usd-price";
 import useWallet from "@/hooks/useWallet";
 import createGetActivitiesQueryOptions from "@/query-options/createGetActivitiesQueryOptions";
+import createGetChainQueryOptions from "@/query-options/createGetChainQueryOptions";
+import { GetActivityResponse } from "@arbitrum-connect/api/src/routes/activities/get.routes";
 
 export const Route = createFileRoute({
   component: Activity,
@@ -75,77 +77,9 @@ function Activity() {
           <h1 className="text-lg font-semibold">My Activity</h1>
         </div>
         <div className="space-y-4 w-full">
-          {data.items.map((activity) => {
-            const childChain = allChainsList.find((c) => c.chainId === activity.childChainId);
-            const parentChain = allChainsList.find((c) => c.chainId === childChain?.parentChainId);
-            const nativeTokenData =
-              childChain?.bridgeUiConfig?.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
-
-            return (
-              <Link
-                key={activity.id}
-                to="/activity/$activityId"
-                params={{ activityId: activity.id.toString() }}
-                className="block rounded-2xl focus-visible:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
-              >
-                <Card className="overflow-hidden rounded-2xl hover:shadow-md transition-shadow cursor-pointer">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 gap-4">
-                    <div className="flex flex-col flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        {activity.status === ActivityStatus.INITIALIZED && (
-                          <ClockFading className="h-4 w-4 text-slate-800" />
-                        )}
-                        {activity.status === ActivityStatus.EXECUTED_BUT_FAILED && (
-                          <CircleX className="h-4 w-4 text-red-500" />
-                        )}
-                        {activity.status === ActivityStatus.CLAIMED && (
-                          <CircleCheck className="h-4 w-4 text-green-500" />
-                        )}
-                        {activity.status === ActivityStatus.READY_TO_CLAIM && (
-                          <CircleAlert className="h-4 w-4 text-blue-500" />
-                        )}
-                        <span
-                          className={cn("font-medium", {
-                            "text-slate-800": activity.status === ActivityStatus.INITIALIZED,
-                            "text-blue-500": activity.status === ActivityStatus.READY_TO_CLAIM,
-                            "text-green-500": activity.status === ActivityStatus.CLAIMED,
-                            "text-red-500": activity.status === ActivityStatus.EXECUTED_BUT_FAILED,
-                          })}
-                        >
-                          {statusToTitle[activity.status as keyof typeof statusToTitle]}
-                        </span>
-                      </div>
-                      <div className="mt-1 text-sm text-gray-500">
-                        {formatDate(new Date(activity.createdAt * 1000), "MMM d, yyyy h:mm a")}
-                      </div>
-                      <div className="mt-2 flex items-center gap-2">
-                        <span className="text-sm text-gray-600">
-                          {childChain?.name || "Unknown Chain"}
-                        </span>
-                        <span className="text-sm text-gray-400">→</span>
-                        <span className="text-sm text-gray-600">
-                          {parentChain?.name || "Unknown Chain"}
-                        </span>
-                      </div>
-                      <div className="mt-2 flex items-center gap-2">
-                        <span className="text-sm font-medium">
-                          {activity.withdrawAmount} {nativeTokenData.symbol}
-                        </span>
-                        <UsdPrice
-                          ethAmount={activity.withdrawAmount}
-                          isLoading={false}
-                          disabled={nativeTokenData.symbol !== ETH_NATIVE_TOKEN_DATA.symbol}
-                          className="text-xs font-extralight"
-                          addParenthesis
-                        />
-                      </div>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-gray-400 shrink-0" />
-                  </div>
-                </Card>
-              </Link>
-            );
-          })}
+          {data.items.map((activity) => (
+            <ActivityItem key={`activity-${activity.id}`} activity={activity} />
+          ))}
         </div>
         {data && data.totalPages > 1 && (
           <div className="mt-4 flex items-center justify-center gap-4">
@@ -184,5 +118,73 @@ function Activity() {
         )}
       </div>
     </div>
+  );
+}
+
+function ActivityItem({ activity }: { activity: GetActivityResponse }) {
+  const { data: childChain } = useQuery(createGetChainQueryOptions(activity.childChainId));
+  const { data: parentChain } = useQuery(createGetChainQueryOptions(childChain?.parentChainId));
+
+  const nativeTokenData = childChain?.bridgeUiConfig?.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
+
+  return (
+    <Link
+      key={activity.id}
+      to="/activity/$activityId"
+      params={{ activityId: activity.id.toString() }}
+      className="block rounded-2xl focus-visible:outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+    >
+      <Card className="overflow-hidden rounded-2xl hover:shadow-md transition-shadow cursor-pointer">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-6 gap-4">
+          <div className="flex flex-col flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              {activity.status === ActivityStatus.INITIALIZED && (
+                <ClockFading className="h-4 w-4 text-slate-800" />
+              )}
+              {activity.status === ActivityStatus.EXECUTED_BUT_FAILED && (
+                <CircleX className="h-4 w-4 text-red-500" />
+              )}
+              {activity.status === ActivityStatus.CLAIMED && (
+                <CircleCheck className="h-4 w-4 text-green-500" />
+              )}
+              {activity.status === ActivityStatus.READY_TO_CLAIM && (
+                <CircleAlert className="h-4 w-4 text-blue-500" />
+              )}
+              <span
+                className={cn("font-medium", {
+                  "text-slate-800": activity.status === ActivityStatus.INITIALIZED,
+                  "text-blue-500": activity.status === ActivityStatus.READY_TO_CLAIM,
+                  "text-green-500": activity.status === ActivityStatus.CLAIMED,
+                  "text-red-500": activity.status === ActivityStatus.EXECUTED_BUT_FAILED,
+                })}
+              >
+                {statusToTitle[activity.status as keyof typeof statusToTitle]}
+              </span>
+            </div>
+            <div className="mt-1 text-sm text-gray-500">
+              {formatDate(new Date(activity.createdAt * 1000), "MMM d, yyyy h:mm a")}
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <span className="text-sm text-gray-600">{childChain?.name || "Unknown Chain"}</span>
+              <span className="text-sm text-gray-400">→</span>
+              <span className="text-sm text-gray-600">{parentChain?.name || "Unknown Chain"}</span>
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <span className="text-sm font-medium">
+                {activity.withdrawAmount} {nativeTokenData.symbol}
+              </span>
+              <UsdPrice
+                ethAmount={activity.withdrawAmount}
+                isLoading={false}
+                disabled={nativeTokenData.symbol !== ETH_NATIVE_TOKEN_DATA.symbol}
+                className="text-xs font-extralight"
+                addParenthesis
+              />
+            </div>
+          </div>
+          <ChevronRight className="h-5 w-5 text-gray-400 shrink-0" />
+        </div>
+      </Card>
+    </Link>
   );
 }

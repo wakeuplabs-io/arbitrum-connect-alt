@@ -51,7 +51,6 @@ function Index() {
         {showConfirmation && (
           <WithdrawConfirmation
             childChain={chainSelectorProps.childChain}
-            parentChain={chainSelectorProps.parentChain!}
             amount={amountToWithdraw}
             isBalanceLoading={isBalanceLoading}
             onBack={() => setShowConfirmation(false)}

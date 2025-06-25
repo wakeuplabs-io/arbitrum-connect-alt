@@ -18,10 +18,11 @@ import { useNetwork } from "@/hooks/useNetwork";
 import UsdPrice from "./usd-price";
 import useWallet from "@/hooks/useWallet";
 import ConnectWallet from "./connect-wallet";
+import { useQuery } from "@tanstack/react-query";
+import createGetChainQueryOptions from "@/query-options/createGetChainQueryOptions";
 
 interface WithdrawConfirmationProps {
   childChain: ChainData;
-  parentChain: ChainData;
   amount: string;
   isBalanceLoading: boolean;
   onBack: () => void;
@@ -30,7 +31,6 @@ interface WithdrawConfirmationProps {
 
 export default function WithdrawConfirmation({
   childChain,
-  parentChain,
   amount,
   isBalanceLoading,
   onBack,
@@ -45,6 +45,8 @@ export default function WithdrawConfirmation({
   const [isExecutingWithdraw, startExecutingWithdraw] = useTransitions();
   const client = hc<AppType>(envParsed().API_URL);
   const nativeTokenData = childChain.bridgeUiConfig?.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
+
+  const { data: parentChain } = useQuery(createGetChainQueryOptions(childChain.parentChainId));
 
   const {
     withdrawRequest,

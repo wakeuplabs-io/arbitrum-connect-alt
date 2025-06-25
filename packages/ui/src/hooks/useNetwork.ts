@@ -1,16 +1,18 @@
 import { useSetChain } from "@web3-onboard/react";
-import { allChainsList, toHex } from "@arbitrum-connect/utils";
+import { fromHex } from "@arbitrum-connect/utils";
+import { useQuery } from "@tanstack/react-query";
+import createGetChainQueryOptions from "@/query-options/createGetChainQueryOptions";
 
 export const useNetwork = () => {
   const [{ connectedChain, settingChain }, setChain] = useSetChain();
 
-  const matched = connectedChain
-    ? allChainsList.find((c) => toHex(c.chainId) === connectedChain.id)
-    : null;
+  const chainId = connectedChain?.id ? fromHex(connectedChain.id) : null;
+
+  const { data: chain } = useQuery(createGetChainQueryOptions(chainId));
 
   const id = connectedChain?.id || null;
-  const name = matched?.name || null;
-  const icon = matched?.bridgeUiConfig.network.logo || null;
+  const name = chain?.name || null;
+  const icon = chain?.bridgeUiConfig.network.logo || null;
   const isSettingNetworkLoading = settingChain;
 
   const connectedChainData = {

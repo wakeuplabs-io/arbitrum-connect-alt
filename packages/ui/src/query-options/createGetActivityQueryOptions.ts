@@ -22,10 +22,10 @@ async function fetchActivity(activityId: string) {
   return (await activity.json()) as GetActivityResponse;
 }
 
-export default function createGetActivityQueryOptions(activityId: string) {
+export default function createGetActivityQueryOptions(activityId: string | number) {
   return queryOptions({
-    queryKey: ["activity", activityId],
-    queryFn: () => fetchActivity(activityId),
+    queryKey: ["activity", activityId.toString()],
+    queryFn: () => fetchActivity(activityId.toString()),
     refetchInterval: minutesToMilliseconds(1),
     staleTime: minutesToMilliseconds(1),
     placeholderData: keepPreviousData,
