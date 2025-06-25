@@ -1,9 +1,6 @@
 import { cn } from "@/lib/utils";
+import createPricesQueryOptions from "@/query-options/createPricesQueryOptions";
 import { useQuery } from "@tanstack/react-query";
-import { hc } from "hono/client";
-import { AppType } from "@arbitrum-connect/api";
-import { GetPriceResponse } from "@arbitrum-connect/api/src/routes/prices/get.routes";
-import envParsed from "@/envParsed";
 import { z } from "zod";
 
 interface UsdPriceProps {
@@ -12,18 +9,6 @@ interface UsdPriceProps {
   className?: string;
   disabled?: boolean;
   addParenthesis?: boolean;
-}
-
-async function fetchEthPrice(): Promise<GetPriceResponse> {
-  const client = hc<AppType>(envParsed().API_URL);
-
-  const response = await client.api.prices.$get();
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch ETH price");
-  }
-
-  return (await response.json()) as GetPriceResponse;
 }
 
 const validNumber = z.coerce.number().min(0);
@@ -37,13 +22,9 @@ export default function UsdPrice({
 }: UsdPriceProps) {
   const { success: isValid, data: ethAmountValidated } = validNumber.safeParse(ethAmount);
 
-  const { data: priceData, isLoading: isPriceLoading } = useQuery({
-    queryKey: ["ethPrice"],
-    queryFn: fetchEthPrice,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchInterval: 5 * 60 * 1000, // 5 minutes
-    enabled: !disabled && isValid && ethAmountValidated > 0,
-  });
+  const { data: priceData, isLoading: isPriceLoading } = useQuery(
+    createPricesQueryOptions({ enabled: !disabled && isValid && ethAmountValidated > 0 }),
+  );
 
   if (disabled || !isValid || isLoading || isPriceLoading || !priceData?.ethereum?.usd) {
     return null;

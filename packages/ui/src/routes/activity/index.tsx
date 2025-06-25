@@ -1,7 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { hc } from "hono/client";
-import { AppType } from "@arbitrum-connect/api";
-import envParsed from "@/envParsed";
 import { allChains, ETH_NATIVE_TOKEN_DATA } from "@arbitrum-connect/utils";
 import { formatDate } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -21,34 +18,12 @@ import { cn } from "@/lib/utils";
 import { ActivityListSkeleton } from "@/components/activity-list-skeleton";
 import { ActivityError } from "@/components/activity-error";
 import { ActivityEmpty } from "@/components/activity-empty";
-import { ListActivityResponse } from "@arbitrum-connect/api/src/routes/activities/list.routes";
 import { statusToTitle } from "@/lib/statusTexts";
 import UsdPrice from "@/components/usd-price";
 import useWallet from "@/hooks/useWallet";
-
-const REFRESH_INTERVAL = 60000; // 1 minute
-const PAGE_SIZE = 10;
+import createGetActivitiesQueryOptions from "@/query-options/createGetActivitiesQueryOptions";
 
 const chainsList = [...allChains.mainnet, ...allChains.testnet];
-
-async function fetchActivities(walletAddress: string, page: number = 1, limit: number = 10) {
-  const client = hc<AppType>(envParsed().API_URL, {
-    headers: { "Cache-Control": "no-cache" },
-  });
-  const response = await client.api.activities.$get({
-    query: {
-      walletAddress,
-      page: page.toString(),
-      limit: limit.toString(),
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch activities");
-  }
-
-  return (await response.json()) as ListActivityResponse;
-}
 
 export const Route = createFileRoute({
   component: Activity,
@@ -58,12 +33,7 @@ function Activity() {
   const [, walletAddress, isConnecting] = useWallet();
   const [page, setPage] = useState(1);
 
-  const { status, data, error } = useQuery({
-    queryKey: ["activities", walletAddress, page, PAGE_SIZE],
-    queryFn: () => fetchActivities(walletAddress!, page, PAGE_SIZE),
-    enabled: !!walletAddress,
-    refetchInterval: REFRESH_INTERVAL,
-  });
+  const { status, data, error } = useQuery(createGetActivitiesQueryOptions(walletAddress, page));
 
   if (isConnecting || (walletAddress && status === "pending")) {
     return (
@@ -184,7 +154,12 @@ function Activity() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              onClick={() => {
+                setPage((p) => Math.max(1, p - 1));
+                setTimeout(() => {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }, 100);
+              }}
               disabled={page === 1}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -196,7 +171,12 @@ function Activity() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
+              onClick={() => {
+                setPage((p) => Math.min(data.totalPages, p + 1));
+                setTimeout(() => {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }, 100);
+              }}
               disabled={page === data.totalPages}
             >
               <ChevronRight className="h-4 w-4" />

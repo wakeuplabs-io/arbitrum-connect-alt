@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import parseError from "@/lib/parseError";
 import { useNetwork } from "@/hooks/useNetwork";
 import useWallet from "@/hooks/useWallet";
+import createClaimGasEstimationQueryOptions from "@/query-options/createClaimGasEstimationQueryOptions";
 
 interface ClaimButtonProps {
   activity: GetActivityResponse;
@@ -47,14 +48,9 @@ export default function ClaimButton({ activity }: ClaimButtonProps) {
 
   const formattedBalanceWithLoadingDots = useLoaingDots(formattedBalance, isBalanceLoading);
 
-  const { data: gasEstimation, status: gasEstimationStatus } = useQuery({
-    queryKey: ["claimGasEstimation", parentChain?.chainId],
-    queryFn: async () => {
-      if (!parentChain) throw new Error("Parent chain not found");
-      return await estimateGasLimitClaim(parentChain);
-    },
-    enabled: !!parentChain,
-  });
+  const { data: gasEstimation, status: gasEstimationStatus } = useQuery(
+    createClaimGasEstimationQueryOptions(parentChain),
+  );
 
   const gasEstimationWithLoadingDots = useLoaingDots(
     gasEstimation?.gasCostInEther ?? "0",
