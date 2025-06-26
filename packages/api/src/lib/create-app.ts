@@ -48,9 +48,6 @@ export function createRouter() {
 export default function createApp() {
   const app = createRouter();
 
-  // Add CORS middleware with specific origin for development
-  const corsOrigin = envParsed().NODE_ENV === "development" ? [envParsed().UI_URL] : "*";
-
   // Debug middleware for CORS (remove in production)
   if (envParsed().NODE_ENV === "development") {
     app.use("*", async (c, next) => {
@@ -65,7 +62,7 @@ export default function createApp() {
   app.use(
     "*",
     cors({
-      origin: corsOrigin,
+      origin: "*",
       allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
       allowHeaders: [
         "Content-Type",
