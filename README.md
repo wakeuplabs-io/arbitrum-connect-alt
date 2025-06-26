@@ -87,6 +87,30 @@ The diagram below illustrates the normal and emergency withdrawal flows in Arbit
 
 ![Withdrawal Flow Diagram](./assets/withdraw-flow-diagram.png.png)
 
+<!--
+Editable diagram
+
+title Arbitrum Connect — Withdrawal with Emergency Fallback
+
+User->WebApp: Open the dApp
+User->WebApp: Connect wallet
+User->WebApp: Enter amount and confirm withdrawal
+
+WebApp->ChildChain: Submit transaction to child chain
+
+alt Sequencer responds (normal flow)
+    ChildChain->ParentChain: Process and bridge to parent chain
+    WebApp->User: Notify after challenge period (e.g., 7 days)
+    User->ParentChain: Claim funds on parent chain
+    ParentChain->User: Funds received on parent chain
+else Timeout >15min (Sequencer unresponsive or censoring)
+    WebApp->User: Show emergency fallback instructions
+    User->Emergency CLI: Run CLI fallback tool (npx)
+    Emergency CLI->ParentChain: Submit transaction to Delayed Inbox
+    ParentChain->User: Funds recovered via forced inclusion
+end
+-->
+
 ### 💡 Included Flows
 
 - ✅ **Normal flow** — Transaction is processed by the sequencer. After the challenge period, the user must manually claim funds on the parent chain.
