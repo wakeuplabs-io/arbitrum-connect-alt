@@ -6,6 +6,10 @@ const envSchema = z
   })
   .required();
 
-const envParsed = () => envSchema.parse(import.meta.env);
+const env = {
+  API_URL: import.meta.env.VITE_API_URL,
+};
+
+const envParsed = () => envSchema.parse(env);
 
 export default envParsed;
