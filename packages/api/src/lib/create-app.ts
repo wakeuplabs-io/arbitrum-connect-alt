@@ -49,7 +49,7 @@ export default function createApp() {
   const app = createRouter();
 
   // Debug middleware for CORS (remove in production)
-  if (envParsed().NODE_ENV === "development") {
+  if (envParsed.NODE_ENV === "development") {
     app.use("*", async (c, next) => {
       console.log(`🔍 Request: ${c.req.method} ${c.req.url}`);
       console.log(`🌐 Origin: ${c.req.header("origin")}`);

@@ -34,9 +34,9 @@ export function pinoLogger() {
   return logger({
     pino: pino(
       {
-        level: envParsed().LOG_LEVEL || "info",
+        level: envParsed.LOG_LEVEL || "info",
       },
-      envParsed().NODE_ENV === "production" ? undefined : pretty(),
+      envParsed.NODE_ENV === "production" ? undefined : pretty(),
     ),
   });
 }

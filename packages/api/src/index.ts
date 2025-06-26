@@ -2,7 +2,7 @@ import { serve } from "@hono/node-server";
 import app from "./app";
 import envParsed from "./envParsed";
 
-const port = envParsed().PORT;
+const port = envParsed.PORT;
 
 serve(
   {
