@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 import { expand } from "dotenv-expand";
 import path from "node:path";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 
 expand(
   config({
@@ -9,7 +9,7 @@ expand(
   }),
 );
 
-const EnvSchema = z.object({
+const envSchema = z.object({
   NODE_ENV: z.string().default("development"),
   PORT: z.coerce.number().default(9999),
   LOG_LEVEL: z
@@ -23,14 +23,20 @@ const EnvSchema = z.object({
   PRICES_CACHE_EXPIRATION_MINUTES: z.coerce.number().default(5),
 });
 
-export type env = z.infer<typeof EnvSchema>;
+const envParsed = () => {
+  try {
+    return envSchema.parse(process.env);
+  } catch (error) {
+    console.error("❌ Invalid env:");
 
-const { data: env, error } = EnvSchema.safeParse(process.env);
+    if (error instanceof ZodError) {
+      console.error(JSON.stringify(error.flatten().fieldErrors, null, 2));
+    } else {
+      console.error(error);
+    }
 
-if (error) {
-  console.error("❌ Invalid env:");
-  console.error(JSON.stringify(error.flatten().fieldErrors, null, 2));
-  process.exit(1);
-}
+    process.exit(1);
+  }
+};
 
-export default env!;
+export default envParsed;

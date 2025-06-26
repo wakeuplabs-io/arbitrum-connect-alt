@@ -1,26 +1,19 @@
-import debounce from "lodash/debounce";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function useDebounce<T>(value: T, delay: number) {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
-  const debouncedSetValue = useCallback(
-    debounce((newValue: T) => {
-      setDebouncedValue(newValue);
-    }, delay),
-    [delay],
-  );
-
   useEffect(() => {
-    debouncedSetValue(value);
-  }, [value, debouncedSetValue]);
+    // Set up the timeout
+    const timeoutId = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
 
-  // Cleanup function to cancel pending debounced calls
-  useEffect(() => {
+    // Clean up function that clears the timeout
     return () => {
-      debouncedSetValue.cancel();
+      clearTimeout(timeoutId);
     };
-  }, [debouncedSetValue]);
+  }, [value, delay]);
 
   return debouncedValue;
 }

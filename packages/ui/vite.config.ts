@@ -15,7 +15,7 @@ export default defineConfig({
     }),
     react(),
     tsconfigPaths(),
-  ] as any,
+  ],
   optimizeDeps: {
     include: ["ethers", "@web3-onboard/react", "@arbitrum/sdk"],
   },

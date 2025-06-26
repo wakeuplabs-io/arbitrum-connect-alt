@@ -6,6 +6,7 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import { AppRouteHandler } from "../../lib/types";
 import { ListActivitiesRoute, listActivitiesRoute } from "./list.routes";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const listActivitiesSchema = listActivitiesRoute.request.query;
 type ListActivitiesQuery = z.infer<typeof listActivitiesSchema>;
 

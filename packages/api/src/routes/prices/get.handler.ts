@@ -1,10 +1,10 @@
 import * as HttpStatusCodes from "stoker/http-status-codes";
 import { db } from "@arbitrum-connect/db/config";
 import { cache } from "@arbitrum-connect/db";
-import { eq, and, gt } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { AppRouteHandler } from "../../lib/types";
 import { GetPriceRoute } from "./get.routes";
-import env from "../../env";
+import envParsed from "../../envParsed";
 
 /**
  * Get price endpoint handler
@@ -13,9 +13,9 @@ import env from "../../env";
  */
 export const getPriceHandler: AppRouteHandler<GetPriceRoute> = async (c) => {
   try {
-    const cacheKey = env.PRICES_API_URL;
+    const cacheKey = envParsed().PRICES_API_URL;
     const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
-    const cacheExpirationInSeconds = env.PRICES_CACHE_EXPIRATION_MINUTES * 60; // 5 minutes in seconds
+    const cacheExpirationInSeconds = envParsed().PRICES_CACHE_EXPIRATION_MINUTES * 60; // 5 minutes in seconds
 
     // Check if we have a valid cache entry
     const [existingCache] = await db.select().from(cache).where(eq(cache.key, cacheKey)).limit(1);
@@ -27,7 +27,7 @@ export const getPriceHandler: AppRouteHandler<GetPriceRoute> = async (c) => {
     }
 
     // If no valid cache, fetch from CoinGecko API
-    const response = await fetch(env.PRICES_API_URL);
+    const response = await fetch(envParsed().PRICES_API_URL);
 
     if (!response.ok) {
       console.error("Failed to fetch prices from CoinGecko:", response.status, response.statusText);

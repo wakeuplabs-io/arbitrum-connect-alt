@@ -135,7 +135,7 @@ export default function EmergencyButton() {
                   </li>
                   <li className="pl-2">
                     <span className="font-medium">Enter your private key</span> - Must start with
-                    "0x"
+                    &quot;0x&quot;
                   </li>
                   <li className="pl-2">
                     <span className="font-medium">Initiate a new withdrawal</span> - Follow the

@@ -15,7 +15,7 @@ import { defaultHook } from "stoker/openapi";
 import { pinoLogger } from "../middlewares/pino-logger";
 
 import type { AppBindings, AppOpenAPI } from "./types";
-import env from "../env";
+import envParsed from "../envParsed";
 
 /**
  * Creates a new OpenAPIHono router instance with default configurations
@@ -49,10 +49,10 @@ export default function createApp() {
   const app = createRouter();
 
   // Add CORS middleware with specific origin for development
-  const corsOrigin = env.NODE_ENV === "development" ? [env.UI_URL] : "*";
+  const corsOrigin = envParsed().NODE_ENV === "development" ? [envParsed().UI_URL] : "*";
 
   // Debug middleware for CORS (remove in production)
-  if (env.NODE_ENV === "development") {
+  if (envParsed().NODE_ENV === "development") {
     app.use("*", async (c, next) => {
       console.log(`🔍 Request: ${c.req.method} ${c.req.url}`);
       console.log(`🌐 Origin: ${c.req.header("origin")}`);

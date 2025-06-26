@@ -8,6 +8,7 @@ import { AppRouteHandler } from "../../lib/types";
 import { GetActivityRoute, getActivityRoute } from "./get.routes";
 import { getWithdrawalStatus, WithdrawalStatus } from "../../lib/getWithdrawalStatus";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getActivitySchema = getActivityRoute.request.params;
 type GetActivityParams = z.infer<typeof getActivitySchema>;
 

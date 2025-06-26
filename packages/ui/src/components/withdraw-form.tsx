@@ -46,7 +46,7 @@ export default function WithdrawForm({
   type FormValues = z.infer<typeof formSchema>;
 
   const form = useForm<FormValues>({
-    // @ts-ignore
+    // @ts-expect-error - zodResolver type mismatch with transform
     resolver: zodResolver(formSchema),
     defaultValues: {
       amount: "",

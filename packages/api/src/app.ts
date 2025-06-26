@@ -15,9 +15,7 @@ import prices from "./routes/prices/prices.index";
  * Created using the createApp factory function that configures OpenAPIHono with custom bindings
  * @type {import('./lib/types').AppOpenAPI}
  */
-const app = createApp();
-
-const apiRoutes = app.route("/api", activities).route("/api", prices);
+const app = createApp().route("/api", activities).route("/api", prices);
 
 /**
  * Configures OpenAPI/Swagger documentation for the API
@@ -29,6 +27,6 @@ configureOpenAPI(app);
  * Exported type that represents the API route structure
  * Useful for client-side typing and documentation
  */
-export type AppType = typeof apiRoutes;
+export type AppType = typeof app;
 
 export default app;

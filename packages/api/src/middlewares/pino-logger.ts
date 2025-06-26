@@ -8,8 +8,7 @@
 import { pinoLogger as logger } from "hono-pino";
 import pino from "pino";
 import pretty from "pino-pretty";
-
-import env from "../env";
+import envParsed from "../envParsed";
 
 /**
  * Creates a configured Pino logger middleware instance
@@ -35,9 +34,9 @@ export function pinoLogger() {
   return logger({
     pino: pino(
       {
-        level: env.LOG_LEVEL || "info",
+        level: envParsed().LOG_LEVEL || "info",
       },
-      env.NODE_ENV === "production" ? undefined : pretty(),
+      envParsed().NODE_ENV === "production" ? undefined : pretty(),
     ),
   });
 }
