@@ -10,12 +10,14 @@ import createApp from "./lib/create-app";
 import activities from "./routes/activities/activities.index";
 import prices from "./routes/prices/prices.index";
 
+const app = createApp();
+
 /**
  * Main Hono application instance
  * Created using the createApp factory function that configures OpenAPIHono with custom bindings
  * @type {import('./lib/types').AppOpenAPI}
  */
-const app = createApp().route("/api", activities).route("/api", prices);
+const appRoutes = app.route("/api", activities).route("/api", prices);
 
 /**
  * Configures OpenAPI/Swagger documentation for the API
@@ -27,6 +29,6 @@ configureOpenAPI(app);
  * Exported type that represents the API route structure
  * Useful for client-side typing and documentation
  */
-export type AppType = typeof app;
+export type AppType = typeof appRoutes;
 
 export default app;
