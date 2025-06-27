@@ -17,15 +17,27 @@ export default defineConfig({
     tsconfigPaths(),
   ],
   optimizeDeps: {
-    include: ["ethers", "@web3-onboard/react", "@arbitrum/sdk"],
+    force: true,
+    include: [
+      "@web3-onboard/react",
+      "@web3-onboard/core",
+      "@web3-onboard/injected-wallets",
+      "@arbitrum/sdk",
+    ],
   },
   build: {
     rollupOptions: {
       output: {
         manualChunks: {
-          "web3-libs": ["ethers", "@web3-onboard/react", "@web3-onboard/core"],
+          ethers: ["ethers"],
+          "web3-onboard": [
+            "@web3-onboard/react",
+            "@web3-onboard/core",
+            "@web3-onboard/injected-wallets",
+          ],
           "arbitrum-sdk": ["@arbitrum/sdk"],
-          vendor: ["react", "react-dom", "@tanstack/react-query"],
+          react: ["react", "react-dom"],
+          tanstack: ["@tanstack/react-query", "@tanstack/react-router"],
         },
       },
     },
