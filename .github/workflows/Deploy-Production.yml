@@ -56,6 +56,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install SST CLI
+        run: |
+          # Install the platform-specific SST CLI binary
+          npm install -g sst-linux-x64@3.9.37
+          # Verify installation
+          sst version
+
       - name: Build Utils
         run: npm run build -w @arbitrum-connect/utils
 
@@ -75,7 +82,7 @@ jobs:
           export SST_LOG_LEVEL=debug
 
           # Run with --verbose for more details
-          if ! npx sst deploy --stage production --verbose; then
+          if ! sst deploy --stage production --verbose; then
             echo "::group::Deployment Error"
             echo "Deployment failed. Error details:"
             cat .sst/log/sst.log || echo "No log file found"
