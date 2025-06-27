@@ -75,7 +75,7 @@ jobs:
           export SST_LOG_LEVEL=debug
 
           # Run with --verbose for more details
-          if ! npx sst-linux-x64 deploy --stage production --verbose; then
+          if ! npx sst deploy --stage production --verbose; then
             echo "::group::Deployment Error"
             echo "Deployment failed. Error details:"
             cat .sst/log/sst.log || echo "No log file found"
