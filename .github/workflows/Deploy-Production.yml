@@ -3,7 +3,7 @@ name: Deploy
 on:
   push:
     branches:
-      - develop
+      - main
 
 # Concurrency group name ensures concurrent workflow runs wait for any in-progress job to finish
 concurrency:
@@ -28,7 +28,7 @@ jobs:
   Deploy:
     needs: Validate
     runs-on: ubuntu-latest
-    environment: staging
+    environment: production
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v3
@@ -74,7 +74,8 @@ jobs:
           # Set detailed log level
           export SST_LOG_LEVEL=debug
 
-          npm run deploy:app:staging
+          npm run deploy:app:production
+
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

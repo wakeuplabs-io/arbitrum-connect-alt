@@ -12,7 +12,7 @@
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
-    "deploy:app:staging": "sst install && sst deploy --stage=staging --print-logs",
+    "deploy:app:staging": "sst install && sst deploy --stage=develop --print-logs",
     "deploy:app:production": "sst install && sst deploy --stage=production"
   },
   "keywords": [],
