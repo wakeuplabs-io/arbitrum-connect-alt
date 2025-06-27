@@ -56,6 +56,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install SST CLI
+        run: |
+          # Force install the correct SST binary for Linux x64
+          npm install --no-save sst-linux-x64@3.9.37
+          # Ensure SST is available in PATH
+          npx sst version
+
       - name: Build Utils
         run: npm run build -w @arbitrum-connect/utils
 
@@ -74,7 +81,8 @@ jobs:
           # Set detailed log level
           export SST_LOG_LEVEL=debug
 
-          npm run deploy:app:staging
+          # Skip sst install since we already installed the correct binary
+          npx sst deploy --stage=develop --print-logs
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
