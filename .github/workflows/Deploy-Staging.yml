@@ -45,8 +45,29 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: sa-east-1
 
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+
+      - name: Build Utils
+        run: npm run build -w @arbitrum-connect/utils
+
+      - name: Build Db
+        run: npm run build -w @arbitrum-connect/db
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Build Api
+        run: npm run build -w @arbitrum-connect/api
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Deploy
         run: |
@@ -54,13 +75,14 @@ jobs:
           export SST_LOG_LEVEL=debug
 
           # Run with --verbose for more details
-          if ! npx sst deploy --stage ${{ github.ref_name }} --verbose; then
+          if ! npx sst deploy --stage develop --verbose; then
             echo "::group::Deployment Error"
             echo "Deployment failed. Error details:"
             cat .sst/log/sst.log || echo "No log file found"
             echo "::endgroup::"
             exit 1
           fi
+
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

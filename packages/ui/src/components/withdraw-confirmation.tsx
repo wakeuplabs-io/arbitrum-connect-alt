@@ -9,16 +9,20 @@ import { hc } from "hono/client";
 import { useState } from "react";
 import WithdrawDetails from "./withdraw-detalis";
 import type { AppType } from "@arbitrum-connect/api";
-import useWithdrawRequest from "@/hoc/useWithdrawRequest";
-import { useConnectWallet, useSetChain } from "@web3-onboard/react";
+import useWithdrawRequest from "@/hooks/useWithdrawRequest";
 import { ChevronLeft } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import useTransitions from "@/hoc/useTransitions";
+import useTransitions from "@/hooks/useTransitions";
+import { useNetwork } from "@/hooks/useNetwork";
+import UsdPrice from "./usd-price";
+import useWallet from "@/hooks/useWallet";
+import ConnectWallet from "./connect-wallet";
+import { useQuery } from "@tanstack/react-query";
+import createGetChainQueryOptions from "@/query-options/createGetChainQueryOptions";
 
 interface WithdrawConfirmationProps {
   childChain: ChainData;
-  parentChain: ChainData;
   amount: string;
   isBalanceLoading: boolean;
   onBack: () => void;
@@ -27,28 +31,22 @@ interface WithdrawConfirmationProps {
 
 export default function WithdrawConfirmation({
   childChain,
-  parentChain,
   amount,
   isBalanceLoading,
   onBack,
   onSuccess,
 }: WithdrawConfirmationProps) {
-  const [{ wallet }] = useConnectWallet();
-  const [
-    {
-      connectedChain, // the current chain the user's wallet is connected to
-      settingChain, // boolean indicating if the chain is in the process of being set
-    },
-    setChain, // function to call to initiate user to switch chains in their wallet
-  ] = useSetChain();
+  const [wallet, walletAddress] = useWallet();
+  const [connectedChain, setChain, isSettingNetworkLoading] = useNetwork();
 
-  const walletAddress = wallet?.accounts[0]?.address;
   const [understoodProcess, setUnderstoodProcess] = useState(false);
   const [understoodTimes, setUnderstoodTimes] = useState(false);
 
   const [isExecutingWithdraw, startExecutingWithdraw] = useTransitions();
   const client = hc<AppType>(envParsed().API_URL);
   const nativeTokenData = childChain.bridgeUiConfig?.nativeTokenData ?? ETH_NATIVE_TOKEN_DATA;
+
+  const { data: parentChain } = useQuery(createGetChainQueryOptions(childChain.parentChainId));
 
   const {
     withdrawRequest,
@@ -96,7 +94,15 @@ export default function WithdrawConfirmation({
         <h1 className="text-lg font-semibold">Review and Initiate Withdraw</h1>
       </div>
       <div className="overflow-hidden w-full rounded-3xl border bg-card p-6 text-center">
-        <span className="text-xs font-extralight text-muted-foreground">Amount to withdraw</span>
+        <div className="flex gap-2 items-center justify-center">
+          <span className="text-xs font-extralight text-muted-foreground">Amount to withdraw</span>
+          <UsdPrice
+            ethAmount={amount}
+            isLoading={false}
+            disabled={nativeTokenData.symbol !== ETH_NATIVE_TOKEN_DATA.symbol}
+            className="text-xs font-extralight text-muted-foreground"
+          />
+        </div>
         <div className="flex items-center justify-center gap-2 pt-1">
           <img src={nativeTokenData.logoUrl} alt={nativeTokenData.name} className="size-8" />
           <span className="text-5xl font-medium tracking-tighter">
@@ -149,18 +155,20 @@ export default function WithdrawConfirmation({
       </div>
 
       <div className="pt-4 flex flex-col gap-4">
-        {connectedChain?.id !== toHex(childChain.chainId) && (
+        {!wallet && <ConnectWallet />}
+
+        {wallet && connectedChain?.id !== toHex(childChain.chainId) && (
           <Button
             onClick={() => setChain({ chainId: toHex(childChain.chainId) })}
             className="w-full"
-            disabled={settingChain}
+            disabled={isSettingNetworkLoading}
           >
-            {settingChain && "Switching..."}
-            {!settingChain && `Switch to ${childChain.name}`}
+            {isSettingNetworkLoading && "Switching..."}
+            {!isSettingNetworkLoading && `Switch to ${childChain.name}`}
           </Button>
         )}
 
-        {connectedChain?.id === toHex(childChain.chainId) && (
+        {wallet && connectedChain?.id === toHex(childChain.chainId) && (
           <Button
             onClick={handleConfirm}
             className="w-full"

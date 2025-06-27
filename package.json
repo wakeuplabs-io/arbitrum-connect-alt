@@ -9,40 +9,32 @@
     "build": "npm run build --workspaces --if-present",
     "dev": "concurrently \"npm run dev --workspace=@arbitrum-connect/api\" \"npm run dev --workspace=@arbitrum-connect/ui\"",
     "start": "npm run start --workspaces --if-present",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint .",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
-    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
-    "deploy:app:staging": "sst install && sst deploy --stage=staging --print-logs",
-    "deploy:app:production": "sst install && sst deploy --stage=production"
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/js": "9.29.0",
     "@types/aws-lambda": "8.10.147",
     "@typescript-eslint/eslint-plugin": "8.26.1",
     "@typescript-eslint/parser": "8.26.1",
     "concurrently": "9.1.2",
     "eslint": "9.22.0",
-    "eslint-config-prettier": "^10.1.1",
-    "eslint-plugin-prettier": "^5.2.5",
+    "eslint-config-prettier": "10.1.1",
+    "eslint-plugin-prettier": "5.2.5",
     "eslint-plugin-react": "7.37.4",
     "eslint-plugin-react-hooks": "5.2.0",
     "eslint-plugin-react-refresh": "0.4.19",
-    "prettier": "^3.5.3",
-    "serverless": "4.8.0",
-    "serverless-plugin-common-excludes": "4.0.0",
-    "serverless-plugin-include-dependencies": "6.1.1",
-    "serverless-s3-sync": "3.4.0"
+    "globals": "16.2.0",
+    "prettier": "3.5.3"
   },
   "dependencies": {
-    "@aws-sdk/client-ec2": "3.766.0",
-    "@types/lodash": "4.17.17",
     "dotenv": "16.4.7",
     "drizzle-orm": "0.28.5",
     "hono": "4.7.11",
-    "lodash": "4.17.21",
-    "sst": "3.9.37",
     "zod": "3.24.2"
   }
 }

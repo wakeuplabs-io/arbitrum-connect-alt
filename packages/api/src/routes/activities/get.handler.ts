@@ -3,15 +3,14 @@ import { db } from "@arbitrum-connect/db/config";
 import { z } from "@hono/zod-openapi";
 import { eq } from "drizzle-orm";
 import * as HttpStatusCodes from "stoker/http-status-codes";
-import { allChains } from "@arbitrum-connect/utils";
-import { AppRouteHandler, TxStatus } from "../../lib/types";
+import { allChainsList } from "@arbitrum-connect/utils";
+import { AppRouteHandler } from "../../lib/types";
 import { GetActivityRoute, getActivityRoute } from "./get.routes";
 import { getWithdrawalStatus, WithdrawalStatus } from "../../lib/getWithdrawalStatus";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getActivitySchema = getActivityRoute.request.params;
 type GetActivityParams = z.infer<typeof getActivitySchema>;
-
-const chainList = [...allChains.mainnet, ...allChains.testnet];
 
 /**
  * Get activity by ID endpoint handler
@@ -35,7 +34,7 @@ export const getActivityHandler: AppRouteHandler<GetActivityRoute> = async (c) =
       return c.json({ message: "Activity not found" }, HttpStatusCodes.NOT_FOUND);
     }
 
-    const childChain = chainList.find((c) => c.chainId === activity.childChainId);
+    const childChain = allChainsList.find((c) => c.chainId === activity.childChainId);
     if (!childChain) {
       return c.json({ message: "Child chain not found" }, HttpStatusCodes.NOT_FOUND);
     }

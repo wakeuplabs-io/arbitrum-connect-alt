@@ -25,6 +25,5 @@
     },
     "composite": true
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.app.json" }, { "path": "../api" }, { "path": "../utils" }]
+  "include": ["src"]
 }

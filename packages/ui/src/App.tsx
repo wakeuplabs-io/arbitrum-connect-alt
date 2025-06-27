@@ -1,4 +1,4 @@
-import { router } from "@/shared/config/tanstackRouter";
+import { router } from "@/routes/setup";
 import { RouterProvider } from "@tanstack/react-router";
 
 function App() {

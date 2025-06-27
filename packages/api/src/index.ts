@@ -1,8 +1,8 @@
 import { serve } from "@hono/node-server";
 import app from "./app";
-import env from "./env";
+import envParsed from "./envParsed";
 
-const port = env.PORT;
+const port = envParsed.PORT;
 
 serve(
   {

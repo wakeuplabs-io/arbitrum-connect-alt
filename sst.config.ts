@@ -62,24 +62,18 @@ export default $config({
 
     // -> API Function
     const api = new sst.aws.Function(`${$app.stage}-${PROJECT_NAME}-api`, {
-      handler: "packages/api/dist/index.handler",
+      bundle: "packages/api/dist",
+      handler: "bundle.handler",
       url: true,
       environment: {
         DATABASE_URL: process.env.DATABASE_URL ?? "",
-        CORS_ORIGINS: UI_URL,
+        UI_URL: UI_URL,
       },
     });
     // API Function <-
 
     // -> Lambda API (delete the unused one)
-    const apiGateway = new sst.aws.ApiGatewayV2(`${$app.stage}-${PROJECT_NAME}-gateway`, {
-      cors: {
-        allowOrigins: [UI_URL],
-        allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        allowHeaders: ["Content-Type", "Authorization"],
-        allowCredentials: true,
-      },
-    });
+    const apiGateway = new sst.aws.ApiGatewayV2(`${$app.stage}-${PROJECT_NAME}-gateway`);
 
     apiGateway.route("$default", api.arn);
     // Lambda API <-
@@ -99,7 +93,7 @@ export default $config({
         output: "dist",
       },
       environment: {
-        VITE_API_URL: api.url,
+        VITE_API_URL: apiGateway.url,
       },
       assets: {
         textEncoding: "utf-8",
@@ -113,13 +107,37 @@ export default $config({
             cacheControl: "max-age=0,no-cache,no-store,must-revalidate",
           },
           {
-            files: ["**/*.png", "**/*.jpg", "**/*.jpeg", "**/*.gif", "**/*.svg"],
+            files: ["**/*.png", "**/*.jpg", "**/*.jpeg", "**/*.gif", "**/*.svg", "**/*.webp"],
             cacheControl: "max-age=31536000,public,immutable",
           },
         ],
       },
       indexPage: "index.html",
       errorPage: "index.html",
+      invalidation: {
+        wait: true,
+        paths: ["/*"],
+      },
+      transform: {
+        cdn: {
+          comment: "SPA routing support",
+          defaultRootObject: "index.html",
+          customErrorResponses: [
+            {
+              errorCode: 403,
+              responseCode: 200,
+              responsePagePath: "/index.html",
+              errorCachingMinTtl: 0,
+            },
+            {
+              errorCode: 404,
+              responseCode: 200,
+              responsePagePath: "/index.html",
+              errorCachingMinTtl: 0,
+            },
+          ],
+        },
+      },
     });
     // UI <-
 

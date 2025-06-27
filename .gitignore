@@ -42,3 +42,12 @@ packages/ui/cache
 
 # sst
 .sst
+
+# build info
+tsconfig.tsbuildinfo
+**/*.tsbuildinfo
+**/**/*.tsbuildinfo
+
+# Routes
+packages/ui/.tanstack
+packages/ui/src/routeTree.gen.ts

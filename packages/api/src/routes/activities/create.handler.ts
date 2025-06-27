@@ -6,6 +6,7 @@ import * as HttpStatusCodes from "stoker/http-status-codes";
 import { AppRouteHandler } from "../../lib/types";
 import { CreateActivityRoute, createActivityRoute } from "./create.routes";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const createActivitySchema = createActivityRoute.request.body.content["application/json"].schema;
 type CreateActivityBody = z.infer<typeof createActivitySchema>;
 

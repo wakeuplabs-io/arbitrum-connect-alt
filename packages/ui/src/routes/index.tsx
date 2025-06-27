@@ -1,13 +1,13 @@
 import ChainSelector from "@/components/chain-selector";
 import WithdrawConfirmation from "@/components/withdraw-confirmation";
 import WithdrawForm from "@/components/withdraw-form";
-import useBalance from "@/hoc/useBalance";
-import useChainSelector from "@/hoc/useChainSelector";
-import useLoaingDots from "@/hoc/useLoadingDots";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import useBalance from "@/hooks/useBalance";
+import useChainSelector from "@/hooks/useChainSelector";
+import useLoaingDots from "@/hooks/useLoadingDots";
+import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute({
   component: Index,
 });
 
@@ -51,7 +51,6 @@ function Index() {
         {showConfirmation && (
           <WithdrawConfirmation
             childChain={chainSelectorProps.childChain}
-            parentChain={chainSelectorProps.parentChain!}
             amount={amountToWithdraw}
             isBalanceLoading={isBalanceLoading}
             onBack={() => setShowConfirmation(false)}

@@ -110,14 +110,14 @@ export default function EmergencyButton() {
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Run this command in your terminal:</p>
                 <div className="bg-slate-100 p-2 rounded-lg flex items-center justify-between group">
-                  <code className="text-sm">npx @wakeuplabs/arbitrum-connect</code>
+                  <code className="text-sm">npx @wakeuplabs/arbitrum-connect@latest</code>
                   <Button
                     variant="ghost"
                     size="icon"
                     className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => copyToClipboard("npx @wakeuplabs/arbitrum-connect")}
+                    onClick={() => copyToClipboard("npx @wakeuplabs/arbitrum-connect@latest")}
                   >
-                    {copiedCommand === "npx @wakeuplabs/arbitrum-connect" ? (
+                    {copiedCommand === "npx @wakeuplabs/arbitrum-connect@latest" ? (
                       <Check className="size-3 text-green-600" />
                     ) : (
                       <Copy className="size-3" />
@@ -135,7 +135,7 @@ export default function EmergencyButton() {
                   </li>
                   <li className="pl-2">
                     <span className="font-medium">Enter your private key</span> - Must start with
-                    "0x"
+                    &quot;0x&quot;
                   </li>
                   <li className="pl-2">
                     <span className="font-medium">Initiate a new withdrawal</span> - Follow the

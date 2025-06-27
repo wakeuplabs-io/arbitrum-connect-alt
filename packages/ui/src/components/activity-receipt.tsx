@@ -17,36 +17,17 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Link } from "@tanstack/react-router";
 import { ActivityStatus } from "@arbitrum-connect/db";
-import { allChains, ETH_NATIVE_TOKEN_DATA } from "@arbitrum-connect/utils";
+import { ETH_NATIVE_TOKEN_DATA } from "@arbitrum-connect/utils";
 import getTimeRemaining from "@/lib/getTimeRemaining";
 import { formatDate } from "date-fns";
 import { cn } from "@/lib/utils";
 import { GetActivityResponse } from "@arbitrum-connect/api/src/routes/activities/get.routes";
 import ClaimButton from "./claim-button";
 import EmergencyButton from "./emergency-button";
-
-const statusToTitle = {
-  [ActivityStatus.INITIALIZED]: "Withdrawal Initiated",
-  [ActivityStatus.CLAIMED]: "Withdrawal Claimed",
-  [ActivityStatus.READY_TO_CLAIM]: "Ready to be Claimed",
-  [ActivityStatus.EXECUTED_BUT_FAILED]: "Withdrawal Executed But Failed",
-};
-
-const statusShorted = {
-  [ActivityStatus.INITIALIZED]: "has been initiated",
-  [ActivityStatus.CLAIMED]: "has been claimed",
-  [ActivityStatus.READY_TO_CLAIM]: "is ready to be claimed",
-  [ActivityStatus.EXECUTED_BUT_FAILED]: "has been executed but failed",
-};
-
-const statusAction = {
-  [ActivityStatus.INITIALIZED]: "Processing Withdrawal",
-  [ActivityStatus.CLAIMED]: "Claimed",
-  [ActivityStatus.READY_TO_CLAIM]: "Ready",
-  [ActivityStatus.EXECUTED_BUT_FAILED]: "Failed",
-};
-
-const chainsList = [...allChains.testnet, ...allChains.mainnet];
+import { statusToTitle, statusShorted, statusAction } from "@/lib/statusTexts";
+import UsdPrice from "./usd-price";
+import { useQuery } from "@tanstack/react-query";
+import createGetChainQueryOptions from "@/query-options/createGetChainQueryOptions";
 
 const GRACE_PERIOD_MINUTES = 15;
 
@@ -57,8 +38,8 @@ export const ActivityReceipt = ({
   activity: GetActivityResponse;
   isFetching: boolean;
 }) => {
-  const childChain = chainsList.find((c) => c.chainId === activity.childChainId);
-  const parentChain = chainsList.find((c) => c.chainId === childChain?.parentChainId);
+  const { data: childChain } = useQuery(createGetChainQueryOptions(activity.childChainId));
+  const { data: parentChain } = useQuery(createGetChainQueryOptions(childChain?.parentChainId));
 
   if (!childChain || !parentChain) {
     return null;
@@ -124,8 +105,7 @@ export const ActivityReceipt = ({
                   <CircleAlert className="mr-2 h-5 w-5" />
                 )}
                 {timeExpired && <ClockAlert className="mr-2 h-5 w-5" />}
-                {(!timeExpired && statusAction[activity.status as keyof typeof statusAction]) ||
-                  "-"}
+                {!timeExpired && statusAction[activity.status as keyof typeof statusAction]}
                 {timeExpired && "Potential network failure"}
               </div>
               {activity.status === ActivityStatus.INITIALIZED && (
@@ -187,7 +167,18 @@ export const ActivityReceipt = ({
                 />
                 Amount
               </div>
-              {activity.withdrawAmount} {nativeTokenData.symbol}
+              <div className="flex items-center gap-2">
+                <UsdPrice
+                  ethAmount={activity.withdrawAmount}
+                  isLoading={false}
+                  disabled={nativeTokenData.symbol !== ETH_NATIVE_TOKEN_DATA.symbol}
+                  className="text-xs font-extralight"
+                  addParenthesis
+                />
+                <span>
+                  {activity.withdrawAmount} {nativeTokenData.symbol}
+                </span>
+              </div>
             </div>
             <div className="bg-gray-100 text-center text-sm text-slate-600 px-4 py-2">
               Have questions about this process?{" "}
@@ -205,7 +196,7 @@ export const ActivityReceipt = ({
         <CardFooter className="flex flex-col gap-6 p-0">
           <section className="w-full flex flex-col gap-3">
             {activity.status === ActivityStatus.READY_TO_CLAIM && (
-              <ClaimButton activity={activity} />
+              <ClaimButton activity={activity} isDisabled={isFetching} />
             )}
             {timeExpired && <EmergencyButton />}
           </section>

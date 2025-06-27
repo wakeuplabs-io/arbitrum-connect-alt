@@ -1,15 +1,13 @@
 import {
   ChildToParentMessageStatus,
   ChildTransactionReceipt,
-  getArbitrumNetwork,
   registerCustomArbitrumNetwork,
 } from "@arbitrum/sdk";
 import { ethers } from "ethers";
 import { SECONDS_IN_MINUTE, TxStatus } from "./types.js";
-import { ChainData, allChains } from "@arbitrum-connect/utils";
+import { ChainData, allChainsList } from "@arbitrum-connect/utils";
 import getConfirmationTime from "./getConfirmationTime";
-
-const chainList = [...allChains.mainnet, ...allChains.testnet];
+import { providers } from "ethers";
 
 export enum WithdrawalStatus {
   READY_TO_CLAIM = "readyToClaim",
@@ -21,8 +19,6 @@ export enum WithdrawalStatus {
 
 export interface WithdrawalStatusResult {
   status: WithdrawalStatus;
-  timeLeftInSeconds?: number;
-  formattedTimeLeft?: string;
   claimableAt?: number;
 }
 
@@ -37,7 +33,7 @@ export async function getWithdrawalStatus(
     },
   );
 
-  const parentChain = chainList.find((c) => c.chainId === childChain.parentChainId);
+  const parentChain = allChainsList.find((c) => c.chainId === childChain.parentChainId);
 
   if (!parentChain) {
     throw new Error("Parent chain not found");
@@ -47,8 +43,19 @@ export async function getWithdrawalStatus(
   const parentChainProvider = new ethers.providers.JsonRpcProvider(parentChain.rpcUrl);
 
   // Get transaction receipt
-  const txReceipt = await childChainProvider.getTransactionReceipt(childChainWithdrawTxHash);
-  if (!txReceipt) {
+
+  let txReceipt: providers.TransactionReceipt | null = null;
+
+  try {
+    txReceipt = await childChainProvider.getTransactionReceipt(childChainWithdrawTxHash);
+    if (!txReceipt) {
+      return {
+        status: WithdrawalStatus.NOT_FOUND,
+      };
+    }
+  } catch {
+    console.error("Error getting transaction receipt", childChainWithdrawTxHash);
+
     return {
       status: WithdrawalStatus.NOT_FOUND,
     };
@@ -94,7 +101,7 @@ export async function getWithdrawalStatus(
   // Calculate remaining time
   const confirmationDate = createdAtTimestamp + confirmationTimeInSeconds;
 
-  const timeLeftInSeconds = Math.max(Math.floor((confirmationDate - Date.now()) / 1000), 0);
+  const timeLeftInSeconds = Math.max(Math.floor((confirmationDate * 1000 - Date.now()) / 1000), 0);
   const addMinutesIfNoTimeLeft = timeLeftInSeconds === 0 ? 2 * SECONDS_IN_MINUTE : 0;
 
   return {

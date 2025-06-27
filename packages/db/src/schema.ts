@@ -37,3 +37,14 @@ export const activities = pgTable("activities", {
 });
 
 export type Activity = typeof activities.$inferSelect;
+
+export const cache = pgTable("cache", {
+  id: serial("id").primaryKey().notNull(),
+  key: text("key").notNull().unique(), // Unique cache key
+  data: text("data").notNull(), // JSON stringified
+  expiresAt: integer("expires_at").notNull(), // Expiration timestamp
+  createdAt: integer("created_at").notNull(),
+  updatedAt: integer("updated_at").notNull(),
+});
+
+export type Cache = typeof cache.$inferSelect;
