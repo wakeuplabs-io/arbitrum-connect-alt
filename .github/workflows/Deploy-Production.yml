@@ -56,13 +56,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install SST CLI
-        run: |
-          # Install the platform-specific SST CLI binary locally
-          npm install sst-linux-x64@3.9.37
-          # Verify installation
-          npx sst-linux-x64 version
-
       - name: Build Utils
         run: npm run build -w @arbitrum-connect/utils
 
