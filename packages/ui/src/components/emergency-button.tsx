@@ -1,3 +1,4 @@
+import envParsed from "@/envParsed";
 import { Button } from "./ui/button";
 import {
   Dialog,
@@ -151,7 +152,7 @@ export default function EmergencyButton() {
             <p className="font-extralight">
               Visit our{" "}
               <a
-                href="https://github.com/wakeuplabs-io/arbitrum-connect/blob/main/README.md"
+                href={envParsed().DOCS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline"

@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Link } from "@tanstack/react-router";
 import { Skeleton } from "./ui/skeleton";
+import envParsed from "@/envParsed";
 
 export const ActivitySkeleton = () => {
   return (
@@ -73,7 +74,7 @@ export const ActivitySkeleton = () => {
             <div className="bg-gray-100 text-center text-sm text-slate-600 px-4 py-2">
               Have questions about this process?{" "}
               <a
-                href="https://github.com/wakeuplabs-io/arbitrum-connect/blob/main/README.md"
+                href={envParsed().DOCS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-blue-600 hover:underline"

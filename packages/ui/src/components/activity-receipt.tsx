@@ -28,6 +28,7 @@ import { statusToTitle, statusShorted, statusAction } from "@/lib/statusTexts";
 import UsdPrice from "./usd-price";
 import { useQuery } from "@tanstack/react-query";
 import createGetChainQueryOptions from "@/query-options/createGetChainQueryOptions";
+import envParsed from "@/envParsed";
 
 const GRACE_PERIOD_MINUTES = 15;
 
@@ -183,7 +184,7 @@ export const ActivityReceipt = ({
             <div className="bg-gray-100 text-center text-sm text-slate-600 px-4 py-2">
               Have questions about this process?{" "}
               <a
-                href="https://github.com/wakeuplabs-io/arbitrum-connect/blob/main/README.md"
+                href={envParsed().DOCS_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-blue-600 hover:underline"
