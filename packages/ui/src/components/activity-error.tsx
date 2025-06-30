@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import { Link } from "@tanstack/react-router";
 import parseError from "@/lib/parseError";
+import envParsed from "@/envParsed";
 
 interface ActivityErrorProps {
   error: unknown;
@@ -39,7 +40,7 @@ export const ActivityError = ({ error }: ActivityErrorProps) => {
               <p>
                 Need help?{" "}
                 <a
-                  href="https://github.com/wakeuplabs-io/arbitrum-connect/blob/main/README.md"
+                  href={envParsed().DOCS_URL}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-medium text-red-600 hover:underline"

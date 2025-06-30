@@ -122,7 +122,7 @@ export default function WithdrawConfirmation({
           You are about to withdraw funds from {childChain.name} to {parentChain?.name}. This
           process requires 2 transactions with network fees. Any doubts?{" "}
           <a
-            href="https://github.com/wakeuplabs-io/arbitrum-connect/blob/main/README.md"
+            href={envParsed().DOCS_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="underline"
