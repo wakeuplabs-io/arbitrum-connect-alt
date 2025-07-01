@@ -79,14 +79,30 @@ export default $config({
     // Lambda API <-
 
     // -> UI
-    const domainRoot = UI_URL.replace(/^https?:\/\/(www\.)?/, "");
-    const domainAlias = UI_URL.replace(/^https?:\/\//, "");
+    const urlWithoutProtocol = UI_URL.replace(/^https?:\/\//, "");
+    const urlWithoutWww = urlWithoutProtocol.replace(/^www\./, "");
+
+    // Detectar si es un subdominio (tiene más de 2 partes después de quitar www)
+    const domainParts = urlWithoutWww.split(".");
+    const isSubdomain = domainParts.length > 2;
+
+    let domainName: string;
+    let aliases: string[] = [];
+
+    if (isSubdomain) {
+      // Si es subdominio, usar solo ese dominio específico
+      domainName = urlWithoutWww;
+    } else {
+      // Si no es subdominio, configurar ambas versiones (con y sin www)
+      domainName = urlWithoutWww;
+      aliases = [`www.${urlWithoutWww}`];
+    }
 
     const ui = new sst.aws.StaticSite(`${PROJECT_NAME}-ui`, {
       path: "packages/ui",
       domain: {
-        name: domainRoot,
-        aliases: domainAlias !== domainRoot ? [domainAlias] : [],
+        name: domainName,
+        aliases: aliases,
       },
       build: {
         command: "npm run build",
